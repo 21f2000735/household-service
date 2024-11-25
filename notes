@@ -1,0 +1,10 @@
+python3 -m venv .venv
+1. source .venv/bin/activate    
+pip install -r requirements.txt 
+pip install flask flask-sqlalchemy python-dotenv    
+pip freeze
+pip freeze > requirements.txt
+
+Load flow  :config-> model DB ->  Routes
+
+flask run

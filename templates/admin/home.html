@@ -1,0 +1,187 @@
+
+{% extends 'layout.html' %}
+
+{% block content %}
+
+    <div class="container">
+        <h1 class="text-center">Hello Admin</h1>
+
+        
+
+        <!-- Services Table -->
+        <h2>List of Services</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Base Price</th>
+                        <th>Time Required</th>
+                        <th>Description</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                        <tr>
+                            <td>{{ service.id }}</td>
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.base_price }}</td>
+                            <td>{{ service.time_required }}</td>
+                            <td>{{ service.description }}</td>
+                            <td>
+                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#newServiceModal" 
+                                        data-service-id="{{ service.id }}"
+                                        data-service-name="{{ service.name }}"
+                                        data-service-description="{{ service.description }}"
+                                        data-service-base-price="{{ service.base_price }}"
+                                        data-service-time-required="{{ service.time_required }}">
+                                    Edit
+                                </button>
+                            </td>
+                            <td>
+                                <form method="post" action="delete_service/{{ service.id }}" onsubmit="return confirm('Are you sure you want to delete this service?');">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                    <input type="hidden" id="serviceId" name="service_id">
+                                </form>
+                            </td>
+                           
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+          
+            <button type="button" class="btn btn-success pull-right" data-bs-toggle="modal" data-bs-target="#newServiceModal">
+                + New Service
+            </button>
+    
+           <!-- Modal -->
+<div class="modal fade" id="newServiceModal" tabindex="-1" aria-labelledby="newServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newServiceModalLabel">Service Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Modal Form -->
+                <form method="post" action="add_edit_service" id="editServiceForm">
+                    <input type="hidden" id="serviceId" name="service_id">
+                    <div class="mb-3">
+                        <label for="serviceName" class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="serviceName" name="service_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceDescription" class="form-label">Service Description</label>
+                        <textarea class="form-control" id="serviceDescription" name="service_description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="basePrice" class="form-label">Base Price</label>
+                        <input type="text" class="form-control" id="basePrice" name="base_price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="timeRequired" class="form-label">Time Required</label>
+                        <input type="text" class="form-control" id="timeRequired" name="time_required" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+           
+            
+        </div>
+
+        <!-- Professionals Table -->
+        <h2>List of Professionals</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Service Type</th>
+                        <th>Experience (Years)</th>
+                        <th>Approved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for professional in professionals %}
+                        <tr>
+                            <td>{{ professional.id }}</td>
+                            <td>{{ professional.name }}</td>
+                            <td>{{ professional.email }}</td>
+                            <td>{{ professional.phone }}</td>
+                            <td>{{ professional.service_type }}</td>
+                            <td>{{ professional.experience }}</td>
+                            <td>{{ 'Yes' if professional.approved else 'No' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Service Requests Table -->
+        <h2>List of Service Requests</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Service</th>
+                        <th>Customer</th>
+                        <th>Professional</th>
+                        <th>Status</th>
+                        <th>Date of Request</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in service_requests %}
+                        <tr>
+                            <td>{{ request.id }}</td>
+                            <td>{{ request.service.name }}</td>
+                            <td>{{ request.customer.name }}</td>
+                            <td>{{ request.professional.name if request.professional else 'Unassigned' }}</td>
+                            <td>{{ request.service_status }}</td>
+                            <td>{{ request.date_of_request.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ request.remarks }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+
+    {% endblock %}
+    {% block scripts %}
+    <script>
+        // When the Edit button is clicked, populate the modal with the current row's data
+        var editButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target="#newServiceModal"]');
+        editButtons.forEach(function(button) {
+            button.addEventListener('click', function () {
+                // Get data attributes
+                var serviceId = button.getAttribute('data-service-id');
+                var serviceName = button.getAttribute('data-service-name');
+                var serviceDescription = button.getAttribute('data-service-description');
+                var serviceBasePrice = button.getAttribute('data-service-base-price');
+                var serviceTimeRequired = button.getAttribute('data-service-time-required');
+    
+                // Set values in the modal
+                document.getElementById('serviceId').value = serviceId;
+                document.getElementById('serviceName').value = serviceName;
+                document.getElementById('serviceDescription').value = serviceDescription;
+                document.getElementById('basePrice').value = serviceBasePrice;
+                document.getElementById('timeRequired').value = serviceTimeRequired;
+            });
+        });
+    </script>
+    {% endblock %}
+    
