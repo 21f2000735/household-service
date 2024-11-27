@@ -1,12 +1,14 @@
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 import os
 from werkzeug.utils import secure_filename
-from app import app
-from models import db,Admin, Customer, ServiceProfessional , Service, ServiceRequest
+from app import app,db
+from models import Admin, Customer, ServiceProfessional , Service, ServiceRequest
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from flask_sqlalchemy import SQLAlchemy
-
+from datetime import date
+from flask import Flask, jsonify
+from flask_swagger import swagger
 
 from config import *
 
@@ -35,21 +37,21 @@ def login_post():
     # Check if the user is an Admin
     admin = Admin.query.filter_by(username=username).first()
     if admin and check_password_hash(admin.password_hash, password):
-        session['user'] = admin.id
+        session['userId'] = admin.id
         session['role'] = 'admin'
         return redirect(url_for('admin_home'))
 
     # Check if the user is a Customer
     customer = Customer.query.filter_by(username=username).first()
     if customer and check_password_hash(customer.password_hash, password):
-        session['user'] = customer.id
+        session['userId'] = customer.id
         session['role'] = 'customer'
         return redirect(url_for('customers_home'))
 
     # Check if the user is a Service Professional
     professional = ServiceProfessional.query.filter_by(username=username).first()
     if professional and check_password_hash(professional.password_hash, password):
-        session['user'] = professional.id
+        session['userId'] = professional.id
         session['role'] = 'professional'
         return redirect(url_for('professionals_home'))
 
@@ -78,9 +80,7 @@ def admin_home():
 def customers_home():
     return render_template('customers/home.html')
 
-@app.route('/professionals/home')
-def professionals_home():
-    return render_template('professionals/home.html')
+
 
 
 
@@ -138,4 +138,42 @@ def delete_service(service_id):
 
 
 
+@app.route('/professionals/home')
+def professionals_home():
+    userId = session.get('userId')
+    # Fetch data from the database
+    professionals = ServiceProfessional.query.all()
+    services = Service.query.all()
+    service_requests = ServiceRequest.query.all()
+    
+    return render_template(
+        'professionals/home.html',
+        professionals=professionals,
+        services=services,
+        service_requests=service_requests
+    )
+    
 
+
+@app.route('/professionals/accept_request', methods=['POST'])
+def accept_request():
+    service_id = request.form['service_id']
+    # Fetch the request and update its status
+    service_request = Service.query.get_or_404(service_id)
+    service_request.status = 'Accepted'
+    db.session.commit()
+    return redirect(url_for('professional_home'))
+
+@app.route('/professionals/reject_request', methods=['POST'])
+def reject_request():
+    service_id = request.form['service_id']
+    # Fetch the request and update its status
+    service_request = Service.query.get_or_404(service_id)
+    service_request.status = 'Rejected'
+    db.session.commit()
+    return redirect(url_for('professional_home'))
+
+@app.route('/reset_db')
+def reset_db():
+    models.reset_database()  # Reset the database (drop and recreate tables)
+    return "Database has been reset!"

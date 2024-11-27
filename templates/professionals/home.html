@@ -1,20 +1,100 @@
-<!-- service 
-<table>
 
-</table>
-Profressional
-<table></table>
-service Request
-<table></table> -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <H1>hello Pro</H1>
+{% extends 'layout.html' %}
+
+{% block content %}
+
+    <div class="container">
+        <h1 class="text-center">Hello Pro</h1>
+
+        
+
+      
+
+        <!-- Service Requests Table -->
+        <h2>Today Service Requests</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Base Price</th>
+                        <th>Time Required</th>
+                        <th>Description</th>
+                        <th>professional_id</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in service_requests %}
+                        <tr>
+                            <td>{{ request.id }}</td>
+                            <td>{{ request.name }}</td>
+                            <td>{{ request.base_price}}</td>
+                            <td>{{ request.time_required if request.time_required else 'Unassigned' }}</td>
+                            <td>{{ request.description }}</td>
+                            <td>{{ request.professional_id if request.professional_id else 'Unassigned' }}</td>
+                            <td>{{ request.remarks }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+         <!-- Service Requests Table -->
+         <h2>Closed Service Requests</h2>
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped">
+                 <thead>
+                     <tr>
+                         <th>ID</th>
+                         <th>Name</th>
+                         <th>Base Price</th>
+                         <th>Time Required</th>
+                         <th>Description</th>
+                         <th>professional_id</th>
+                         <th>Remarks</th>
+                     </tr>
+                 </thead>
+                 <tbody>
+                     {% for request in service_requests %}
+                         <tr>
+                             <td>{{ request.id }}</td>
+                             <td>{{ request.name }}</td>
+                             <td>{{ request.base_price}}</td>
+                             <td>{{ request.time_required if request.time_required else 'Unassigned' }}</td>
+                             <td>{{ request.description }}</td>
+                             <td>{{ request.professional_id if request.professional_id else 'Unassigned' }}</td>
+                             <td>{{ request.remarks }}</td>
+                         </tr>
+                     {% endfor %}
+                 </tbody>
+             </table>
+         </div>
+        
+    </div>
+
+    {% endblock %}
+    {% block scripts %}
+    <script>
+        // When the Edit button is clicked, populate the modal with the current row's data
+        var editButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target="#newServiceModal"]');
+        editButtons.forEach(function(button) {
+            button.addEventListener('click', function () {
+                // Get data attributes
+                var serviceId = button.getAttribute('data-service-id');
+                var serviceName = button.getAttribute('data-service-name');
+                var serviceDescription = button.getAttribute('data-service-description');
+                var serviceBasePrice = button.getAttribute('data-service-base-price');
+                var serviceTimeRequired = button.getAttribute('data-service-time-required');
     
-</body>
-</html>
+                // Set values in the modal
+                document.getElementById('serviceId').value = serviceId;
+                document.getElementById('serviceName').value = serviceName;
+                document.getElementById('serviceDescription').value = serviceDescription;
+                document.getElementById('basePrice').value = serviceBasePrice;
+                document.getElementById('timeRequired').value = serviceTimeRequired;
+            });
+        });
+    </script>
+    {% endblock %}
+    
