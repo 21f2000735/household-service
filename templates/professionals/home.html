@@ -9,67 +9,71 @@
         
 
       
+<!-- Service Requests Table -->
+<h2>Past Service Requests</h2>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>service_id</th>
+                <th>customer_id</th>
+                <th>professional_id</th>
+                <th>date_of_request</th>
+                <th>date_of_completion</th>
+                <th>service_status</th>
+                <th>Remarks</th>
+                <th>payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in service_requests %}
+                <tr>
+                    <td>{{ request.service_id }}</td>
+                    <td>{{ request.customer_id }}</td>
+                    <td>{{ request.professional_id}}</td>
+                    <td>{{ request.date_of_request  }}</td>
+                    <td>{{ request.date_of_completion }}</td>
+                    <td>{{ request.service_status }}</td>
+                    <td>{{ request.remarks }}</td>
+                    <td>{{ request.payment }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
         <!-- Service Requests Table -->
-        <h2>Today Service Requests</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Base Price</th>
-                        <th>Time Required</th>
-                        <th>Description</th>
-                        <th>professional_id</th>
-                        <th>Remarks</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for request in service_requests %}
-                        <tr>
-                            <td>{{ request.id }}</td>
-                            <td>{{ request.name }}</td>
-                            <td>{{ request.base_price}}</td>
-                            <td>{{ request.time_required if request.time_required else 'Unassigned' }}</td>
-                            <td>{{ request.description }}</td>
-                            <td>{{ request.professional_id if request.professional_id else 'Unassigned' }}</td>
-                            <td>{{ request.remarks }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-         <!-- Service Requests Table -->
-         <h2>Closed Service Requests</h2>
-         <div class="table-responsive">
-             <table class="table table-bordered table-striped">
-                 <thead>
-                     <tr>
-                         <th>ID</th>
-                         <th>Name</th>
-                         <th>Base Price</th>
-                         <th>Time Required</th>
-                         <th>Description</th>
-                         <th>professional_id</th>
-                         <th>Remarks</th>
-                     </tr>
-                 </thead>
-                 <tbody>
-                     {% for request in service_requests %}
-                         <tr>
-                             <td>{{ request.id }}</td>
-                             <td>{{ request.name }}</td>
-                             <td>{{ request.base_price}}</td>
-                             <td>{{ request.time_required if request.time_required else 'Unassigned' }}</td>
-                             <td>{{ request.description }}</td>
-                             <td>{{ request.professional_id if request.professional_id else 'Unassigned' }}</td>
-                             <td>{{ request.remarks }}</td>
-                         </tr>
-                     {% endfor %}
-                 </tbody>
-             </table>
-         </div>
+<h2>Past Service Requests</h2>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>service_id</th>
+                <th>customer_id</th>
+                <th>professional_id</th>
+                <th>date_of_request</th>
+                <th>date_of_completion</th>
+                <th>service_status</th>
+                <th>Remarks</th>
+                <th>payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in service_requests %}
+                <tr>
+                    <td>{{ request.service_id }}</td>
+                    <td>{{ request.customer_id }}</td>
+                    <td>{{ request.professional_id}}</td>
+                    <td>{{ request.date_of_request  }}</td>
+                    <td>{{ request.date_of_completion }}</td>
+                    <td>{{ request.service_status }}</td>
+                    <td>{{ request.remarks }}</td>
+                    <td>{{ request.payment }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
         
     </div>
 
