@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import date
 from flask import Flask, jsonify
 from flask_swagger import swagger
+from enums import ServiceType
 
 from config import *
 
@@ -78,7 +79,21 @@ def admin_home():
 
 @app.route('/customers/home')
 def customers_home():
-    return render_template('customers/home.html')
+     # Fetch data from the database
+    professionals = ServiceProfessional.query.all()
+    services = Service.query.all()
+    service_requests = ServiceRequest.query.all()
+
+    # Get all service types from the enum
+    service_types = ServiceType.list_all()
+    
+    return render_template(
+        'customers/home.html',
+        professionals=professionals,
+        services=services,
+        service_requests=service_requests,
+        service_types= service_types
+    )
 
 
 
@@ -177,3 +192,13 @@ def reject_request():
 def reset_db():
     models.reset_database()  # Reset the database (drop and recreate tables)
     return "Database has been reset!"
+
+@app.route('/service/<int:service_type_id>/best-price')
+def get_best_price_services(service_type_id):
+    services = (
+        ServiceProfessional.query
+        #.filter_by(service_type_id=service_type_id)
+        .order_by(ServiceProfessional.base_price.asc())  # Sort by base price
+        .all()
+    )
+    return render_template('partials/best_price_services.html', services=services)
