@@ -192,6 +192,11 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
 
         date_of_request = request.date_of_request if request.date_of_request else 'N/A'
         date_of_completion = request.date_of_completion if request.date_of_completion else 'N/A'
+
+        if (request.rejected_by_professional_id is not None and
+            professional is not None and
+            request.rejected_by_professional_id == professional.id):
+            continue  # Skip this request
     
         enriched_request = {
             'id': request.id,
@@ -206,6 +211,7 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
             'date_of_request': date_of_request,
             'date_of_completion': date_of_completion,
             'status': request.service_status or 'N/A',
+            'remarks': request.remarks or 'N/A'
         }
         
         # If a professional parameter is provided, add professional details
@@ -372,15 +378,45 @@ def professionals_home():
 
 @app.route('/professionals/service_request/<int:service_request_id>/<action>', methods=['POST'])
 def service_request_action(service_request_id, action):
-    # Action logic goes here
+    # Fetch the service request from the database
     service_request = ServiceRequest.query.get_or_404(service_request_id)
-    service_request.professional_id=session['userId']
+
+
+    # Handle actions based on the action parameter
     if action == 'accept':
-        service_request.status = 'Accepted'
+        if service_request.service_status == ServiceRequestStatus.REQUESTED.display_name:  # Only accept if the request is in 'Requested' state
+            service_request.service_status = ServiceRequestStatus.ASSIGNED.display_name
+            service_request.professional_id = session['userId']
+        else:
+            flash("Request cannot be accepted. It is not in the 'Requested' state.", "error")
+            return redirect(url_for('professionals_home'))
+
     elif action == 'reject':
-        service_request.status = 'Rejected'
+        if service_request.service_status == ServiceRequestStatus.REQUESTED.display_name:  # Only reject if the request is in 'Requested' state
+            service_request.service_status = ServiceRequestStatus.REQUESTED.display_name
+            service_request.rejected_by_professional_id = session['userId']
+        else:
+            flash("Request cannot be rejected. It is not in the 'Requested' state.", "error")
+            return redirect(url_for('professionals_home'))
+
+    elif action == 'close':
+        if service_request.service_status == ServiceRequestStatus.ASSIGNED.display_name:  # Only close if the request is in 'Assigned' state
+            service_request.service_status = ServiceRequestStatus.CLOSED.display_name
+            service_request.professional_id = session['userId']
+        else:
+            flash("Request cannot be closed. It is not in the 'Assigned' state.", "error")
+            return redirect(url_for('professionals_home'))
+
+    else:
+        flash("Invalid action.", "error")
+        return redirect(url_for('professionals_home'))
+
+    # Commit the changes to the database
     db.session.commit()
+
+    # Return to the home page with the updated service requests
     return redirect(url_for('professionals_home'))
+
 
 ################### Professional End point End #############
 

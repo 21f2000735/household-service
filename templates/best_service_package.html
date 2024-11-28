@@ -1,6 +1,6 @@
 <h2>List of Services</h2>
 <div class="table-responsive">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped table-hover">
         <thead>
             <tr>
                 <th>ID</th>
@@ -46,9 +46,15 @@
                 </div>
                 <div class="modal-body">
                     <p>Service: <span id="modal-service-name"></span></p>
-                    
+
                     <!-- Hidden input for service ID -->
                     <input type="hidden" name="service_id" id="modal-service-id">
+
+                    <!-- Request Date Input -->
+                    <div class="mb-3">
+                        <label for="request_date" class="form-label">Preferred Service Date:</label>
+                        <input type="date" class="form-control" id="request_date" name="request_date" required>
+                    </div>
 
                     <!-- Remark Input -->
                     <div class="mb-3">
@@ -74,7 +80,6 @@
     </div>
 </div>
 
-
 {% block scripts %}
 <script>
     const newServiceModal = document.getElementById('newServiceModal');
@@ -88,5 +93,4 @@
         document.getElementById('modal-service-id').value = serviceId;
     });
 </script>
-
 {% endblock %}

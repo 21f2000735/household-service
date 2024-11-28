@@ -1,49 +1,67 @@
 <h2>Today Service Requests</h2>
 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>S.No</th>
-                <th>Customer Name</th>
-                <th>Customer Phone</th>
-                <th>Customer Address</th>
-                <th>Customer Pincode</th>
-                <th>Date</th>
-                <th>Customer Rating</th>
-                <th>Action</th> <!-- Action column for Accept/Reject buttons -->
-            </tr>
-        </thead>
-        <tbody>
-            {% for request in today_service_requests %}
-            <tr>
-                <td>{{ loop.index }}</td> <!-- Serial number -->
-                <td>{{ request.customer_name if request.customer_name else 'N/A' }}</td>
-                <td>{{ request.customer_phone if request.customer_phone else 'N/A' }}</td>
-                <td>{{ request.customer_address if request.customer_address else 'N/A' }}</td>
-                <td>{{ request.customer_pincode if request.customer_pincode else 'N/A' }}</td>
-                <td>{{ request.date_of_request if request.date_of_request else 'N/A' }}</td>
-                <td>{{ request.customer_rating if request.customer_rating else 'N/A' }}</td>
-                <td>
-                    {% if request.status != 'Completed' %}
-                        <form action="{{ url_for('service_request_action', service_request_id=request.id, action='accept') }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirmAction('accept')">Accept</button>
-                        </form>
-                        <form action="{{ url_for('service_request_action', service_request_id=request.id, action='reject') }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirmAction('reject')">Reject</button>
-                        </form>
-                    {% else %}
-                        <span>Closed</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    {% if today_service_requests|length == 0 %}
+        <div class="alert alert-info" role="alert">
+            No service requests for today.
+        </div>
+    {% else %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Customer Name</th>
+                    <th>Customer Phone</th>
+                    <th>Customer Address</th>
+                    <th>Customer Pincode</th>
+                    <th>Date</th>
+                    <th>Service Status</th>
+                    <th>Remark</th>
+                    <th>Action</th> <!-- Action column for Accept/Reject/Close buttons -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in today_service_requests %}
+                <tr id="request-{{ request.id }}">
+                    <td>{{ loop.index }}</td>
+                    <td>{{ request.customer_name if request.customer_name else 'N/A' }}</td>
+                    <td>{{ request.customer_phone if request.customer_phone else 'N/A' }}</td>
+                    <td>{{ request.customer_address if request.customer_address else 'N/A' }}</td>
+                    <td>{{ request.customer_pincode if request.customer_pincode else 'N/A' }}</td>
+                    <td>{{ request.date_of_request if request.date_of_request else 'N/A' }}</td>
+                    <td>{{ request.status if request.status else 'N/A' }}</td>
+                    <td>
+                        {% if request.remarks %}
+                            {% set trimmed_remarks = request.remarks[:10] if request.remarks|length > 10 else request.remarks %}
+                            <span 
+                                data-toggle="tooltip" 
+                                title="{{ request.remarks }}" 
+                                style="max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                {{ trimmed_remarks }}{% if request.remarks|length > 10 %}...{% endif %}
+                            </span>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
 
-<script>
-    function confirmAction(action) {
-        var message = action === 'accept' ? "Are you sure you want to accept this request?" : "Are you sure you want to reject this request?";
-        return confirm(message);
-    }
-</script>
+                        {% if request.status == 'requested' %}
+                            <form action="{{ url_for('service_request_action', service_request_id=request.id, action='accept') }}" method="POST" style="display:inline;">
+                                <button class="btn btn-success btn-sm" type="submit">Accept</button>
+                            </form>
+                            <form action="{{ url_for('service_request_action', service_request_id=request.id, action='reject') }}" method="POST" style="display:inline;">
+                                <button class="btn btn-danger btn-sm" type="submit">Reject</button>
+                            </form> 
+                        {% elif request.status == 'assigned' %}
+                            <form action="{{ url_for('service_request_action', service_request_id=request.id, action='close') }}" method="POST" style="display:inline;">
+                                <button class="btn btn-secondary btn-sm" type="submit">Close</button>
+                            </form>
+                        {% else %}
+                            <span>Closed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>

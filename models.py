@@ -66,6 +66,7 @@ class ServiceRequest(BaseModel):
     service_status = db.Column(db.String(50), default="requested", nullable=True)  # Made nullable
     service_type_id= db.Column(db.Integer, nullable=True)  # Made nullable
     remarks = db.Column(db.Text, nullable=True)  # Made nullable
+    rejected_by_professional_id= db.Column(db.Integer, nullable=True)  # Made nullable
     rating = db.Column(db.Text, nullable=True)  # Made nullable
     payment = db.relationship('Payment', backref='service_request', lazy=True)
 
