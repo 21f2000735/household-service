@@ -33,6 +33,7 @@ class Customer(BaseModel):
     email = db.Column(db.String(150), unique=True, nullable=False)
     phone = db.Column(db.String(20), unique=True, nullable=False)
     address = db.Column(db.String(300), nullable=True)  # Made nullable
+    pincode = db.Column(db.String(300), nullable=True)  # Made nullable
 
 class Service(BaseModel):
     __tablename__ = 'service'
@@ -65,6 +66,7 @@ class ServiceRequest(BaseModel):
     service_status = db.Column(db.String(50), default="requested", nullable=True)  # Made nullable
     service_type_id= db.Column(db.Integer, nullable=True)  # Made nullable
     remarks = db.Column(db.Text, nullable=True)  # Made nullable
+    rating = db.Column(db.Text, nullable=True)  # Made nullable
     payment = db.relationship('Payment', backref='service_request', lazy=True)
 
 class Feedback(BaseModel):

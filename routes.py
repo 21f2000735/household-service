@@ -9,7 +9,8 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import date
 from flask import Flask, jsonify
 from flask_swagger import swagger
-from enums import ServiceType
+from enums import ServiceType, ServiceRequestStatus
+from sqlalchemy import or_, and_
 
 from config import *
 
@@ -144,40 +145,6 @@ def delete_service(service_id):
 
 
 
-@app.route('/professionals/home')
-def professionals_home():
-    userId = session.get('userId')
-    # Fetch data from the database
-    professionals = ServiceProfessional.query.all()
-    services = Service.query.all()
-    service_requests = ServiceRequest.query.all()
-    
-    return render_template(
-        'professionals/home.html',
-        professionals=professionals,
-        services=services,
-        service_requests=service_requests
-    )
-    
-
-
-@app.route('/professionals/accept_request', methods=['POST'])
-def accept_request():
-    service_id = request.form['service_id']
-    # Fetch the request and update its status
-    service_request = Service.query.get_or_404(service_id)
-    service_request.status = 'Accepted'
-    db.session.commit()
-    return redirect(url_for('professional_home'))
-
-@app.route('/professionals/reject_request', methods=['POST'])
-def reject_request():
-    service_id = request.form['service_id']
-    # Fetch the request and update its status
-    service_request = Service.query.get_or_404(service_id)
-    service_request.status = 'Rejected'
-    db.session.commit()
-    return redirect(url_for('professional_home'))
 
 @app.route('/reset_db')
 def reset_db():
@@ -185,14 +152,22 @@ def reset_db():
     return "Database has been reset!"
 
 
-################################ Customer API##############
+################################ Common Methods ##############
 
-def enrich_service_requests(service_requests, customer, mappings):
+
+def enrich_service_requests(service_requests, customer, mappings, professional=None):
     """
     Enrich service requests with additional details for rendering.
+    If the customer is None, fetch the customer from the database.
     """
     enriched_requests = []
+    
     for request in service_requests:
+        # If customer is None, fetch from the database
+        if customer is None:
+            customer = Customer.query.get(request.customer_id)  # Fetch customer from the database
+
+        # Fetch professional details
         professional_name = (
             mappings['professional_mapping'][request.professional_id].name
             if request.professional_id and request.professional_id in mappings['professional_mapping']
@@ -208,15 +183,47 @@ def enrich_service_requests(service_requests, customer, mappings):
             if request.service_id in mappings['service_type_mapping']
             else 'Service Not Found'
         )
-        enriched_requests.append({
+        
+        # Fetch customer details
+        customer_name = customer.name if customer else 'N/A'
+        customer_phone = customer.phone if customer and customer.phone else 'N/A'
+        customer_address = customer.address if customer and customer.address else 'N/A'
+        customer_pincode = customer.pincode if customer and customer.pincode else 'N/A'
+
+        date_of_request = request.date_of_request if request.date_of_request else 'N/A'
+        date_of_completion = request.date_of_completion if request.date_of_completion else 'N/A'
+    
+        enriched_request = {
             'id': request.id,
-            'customer_name': customer.name,
+            'customer_name': customer_name,
+            'customer_phone': customer_phone,
+            'customer_address': customer_address,
+            'customer_pincode': customer_pincode,
+            'service_request_rating': request.rating or 'N/A',
             'professional_name': professional_name,
             'professional_phone': professional_phone,
             'service_name': service_name,
+            'date_of_request': date_of_request,
+            'date_of_completion': date_of_completion,
             'status': request.service_status or 'N/A',
-        })
+        }
+        
+        # If a professional parameter is provided, add professional details
+        if professional:
+            enriched_request['professional'] = {
+                'name': professional.name,
+                'phone': professional.phone,
+                'email': professional.email,  # You can add more attributes as needed
+            }
+        
+        enriched_requests.append(enriched_request)
+    
     return enriched_requests
+
+
+
+
+################################ Customer API Start ##############
 
 @app.route('/customers/home')
 def customers_home():
@@ -283,8 +290,6 @@ def view_package(service_type_id):
         return f"An error occurred while loading the best package view: {e}", 500
 
 
-
-
 @app.route('/customers/new_service_request/', methods=['POST'])
 def new_service_request():
     try:
@@ -315,6 +320,69 @@ def new_service_request():
         # Handle any errors that occur during the process
         return f"An error occurred: {e}", 500
 
+
+################################ Customer API End##############
+
+################################ Professional  API Start ##############
+
+@app.route('/professionals/home')
+def professionals_home():
+    try:
+        # Get the current logged-in professional
+        service_professional = ServiceProfessional.query.filter_by(id=session['userId']).first()
+        if not service_professional:
+            return "Professional not found", 404
+
+        # Today's service requests: requests that are requested but not yet assigned to a professional
+        today_service_requests = ServiceRequest.query.filter(
+        or_(
+        # Condition 1: Unassigned and status is 'Requested'
+        and_(
+            ServiceRequest.professional_id == None,
+            ServiceRequest.service_status == ServiceRequestStatus.REQUESTED.display_name
+        ),
+        # Condition 2: Assigned to the current professional and status is 'Assigned'
+        and_(
+            ServiceRequest.professional_id == service_professional.id,
+            ServiceRequest.service_status == ServiceRequestStatus.ASSIGNED.display_name
+        )
+        )
+        ).all()
+
+        closed_service_requests = ServiceRequest.query.filter(
+        and_(
+            ServiceRequest.professional_id == service_professional.id,
+            ServiceRequest.service_status == ServiceRequestStatus.CLOSED.display_name
+        )
+        ).all()
+        # Enrich service requests using the helper function
+        mappings = create_id_mappings()
+        enriched_today_requests = enrich_service_requests(today_service_requests,None, mappings,service_professional)
+        enriched_past_requests = enrich_service_requests(closed_service_requests, None, mappings,service_professional)
+
+        return render_template(
+            'professionals/home.html',
+            service_professional=service_professional,
+            today_service_requests=enriched_today_requests,
+            past_service_requests=enriched_past_requests
+        )
+    except Exception as e:
+        return f"An error occurred while loading professional home: {e}", 500
+
+
+@app.route('/professionals/service_request/<int:service_request_id>/<action>', methods=['POST'])
+def service_request_action(service_request_id, action):
+    # Action logic goes here
+    service_request = ServiceRequest.query.get_or_404(service_request_id)
+    service_request.professional_id=session['userId']
+    if action == 'accept':
+        service_request.status = 'Accepted'
+    elif action == 'reject':
+        service_request.status = 'Rejected'
+    db.session.commit()
+    return redirect(url_for('professionals_home'))
+
+################### Professional End point End #############
 
 from flask import request, abort
 

@@ -10,12 +10,12 @@ class PaymentStatus(Enum):
     PAID = "Paid"
     FAILED = "Failed"
 
-class ServiceRequestStatus(Enum):
-    REQUESTED = (1, "Requested")
-    IN_PROGRESS = (2, "In Progress")
-    COMPLETED = (3, "Completed")
-    CANCELLED = (4, "Cancelled")
-    REJECTED = (5, "Rejected")
+
+
+class ServiceRequestStatus(Enum): #requested/assigned/closed
+    REQUESTED = (1, "requested")
+    ASSIGNED = (2, "assigned")
+    CLOSED = (3, "closed")
 
     def __init__(self, id, display_name):
         self.id = id
@@ -23,14 +23,25 @@ class ServiceRequestStatus(Enum):
 
     @classmethod
     def get_by_id(cls, id):
-        for status in cls:
-            if status.id == id:
-                return status
-        return None  
+        """
+        Get the status by ID.
+        Returns None if no matching ID is found.
+        """
+        return next((status for status in cls if status.id == id), None)
 
     @classmethod
     def list_all(cls):
+        """
+        List all statuses as a list.
+        """
         return [status for status in cls]
+
+    def __str__(self):
+        """
+        Return a string representation of the enum (for display purposes).
+        """
+        return self.display_name
+
 
 class ServiceType(Enum):
     PLUMBING = (1, "Plumbing", 500.0, "image/plumbing.png")

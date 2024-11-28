@@ -1,0 +1,29 @@
+<h2>Closed Service Requests</h2>
+<div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Customer Name</th>
+                <th>Customer Phone</th>
+                <th>Customer Address</th>
+                <th>Customer Pincode</th>
+                <th>Date</th>
+                <th>Customer Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in past_service_requests %}
+            <tr>
+                <td>{{ loop.index }}</td> <!-- Serial number -->
+                <td>{{ request.customer_name if request.customer_name else 'N/A' }}</td>
+                <td>{{ request.customer_phone if request.customer_phone else 'N/A' }}</td>
+                <td>{{ request.customer_address if request.customer_address else 'N/A' }}</td>
+                <td>{{ request.customer_pincode if request.customer_pincode else 'N/A' }}</td>
+                <td>{{ request.date_of_request if request.date_of_request else 'N/A' }}</td>
+                <td>{{ request.customer_rating if request.customer_rating else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

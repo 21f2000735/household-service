@@ -22,7 +22,8 @@ def create_or_get_customer():
                 name="Tanya Goyal",
                 email="tanya@gmail.com",
                 phone="1234567890",
-                address="Delhi 110051"
+                address="Delhi 110051",
+                pincode="110051"
                 )
             db.session.add(customer)
             db.session.commit()  # Commit after adding the customer
