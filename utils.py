@@ -36,7 +36,8 @@ def create_or_get_service():
                 name="Plumbing",
                 base_price=500.0,
                 time_required="2 hours",
-                description="All types of plumbing services"
+                description="All types of plumbing services",
+                service_type_id=1
             )
             db.session.add(service)
             db.session.commit()  # Commit after adding the service
@@ -69,7 +70,7 @@ def create_or_get_service_request(customer, service, professional):
         
         if isinstance(service, Service) and not db.session.object_session(service):
             service = db.session.merge(service)  # Attach the object to the session
-        
+        ServiceRequest
         if isinstance(professional, ServiceProfessional) and not db.session.object_session(professional):
             professional = db.session.merge(professional)  # Attach the object to the session
 
@@ -82,6 +83,7 @@ def create_or_get_service_request(customer, service, professional):
             # If the service request doesn't exist, create a new one
             service_request = ServiceRequest(
                 service_id=service.id,
+                service_type_id=service.service_type_id,
                 customer_id=customer.id,
                 professional_id=professional.id,
                 service_status="requested",

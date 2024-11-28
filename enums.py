@@ -10,15 +10,33 @@ class PaymentStatus(Enum):
     PAID = "Paid"
     FAILED = "Failed"
 
-from enum import Enum
+class ServiceRequestStatus(Enum):
+    REQUESTED = (1, "Requested")
+    IN_PROGRESS = (2, "In Progress")
+    COMPLETED = (3, "Completed")
+    CANCELLED = (4, "Cancelled")
+    REJECTED = (5, "Rejected")
+
+    def __init__(self, id, display_name):
+        self.id = id
+        self.display_name = display_name
+
+    @classmethod
+    def get_by_id(cls, id):
+        for status in cls:
+            if status.id == id:
+                return status
+        return None  
+
+    @classmethod
+    def list_all(cls):
+        return [status for status in cls]
 
 class ServiceType(Enum):
     PLUMBING = (1, "Plumbing", 500.0, "image/plumbing.png")
     ELECTRICAL = (2, "Electrical", 700.0, "image/electrician.png")
     CLEANING = (3, "Cleaning", 300.0, "image/cleaning.png")
     GARDENING = (4, "Gardening", 400.0, "image/gardening.png")
-    # You can uncomment the other service types when required
-    # OTHER = (5, "Others", 0.0, "image/other.png")
 
 
     def __init__(self, id, display_name, base_price, image_url):

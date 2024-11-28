@@ -1,31 +1,42 @@
 <h2>Past Service Requests</h2>
-<div class="table-responsive">
+<div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
+                <th>S.No</th>
                 <th>Service Name</th>
-                <th>Customer</th>
-                <th>Professional</th>
-                <th>Date of Request</th>
-                <th>Date of Completion</th>
+                <th>Professional Name</th>
+                <th>Professional Phone</th>
                 <th>Status</th>
-                <th>Remarks</th>
-                <th>Payment</th>
+                <th>Action</th> <!-- Action column for the button -->
             </tr>
         </thead>
         <tbody>
             {% for request in service_requests %}
             <tr>
+                <td>{{ loop.index }}</td> <!-- Serial number -->
                 <td>{{ request.service_name }}</td>
-                <td>{{ request.customer_name }}</td>
-                <td>{{ request.professional_name }}</td>
-                <td>{{ request.date_of_request }}</td>
-                <td>{{ request.date_of_completion }}</td>
+                <td>{{ request.professional_name if request.professional_name else 'N/A' }}</td>
+                <td>{{ request.professional_phone if request.professional_phone else 'N/A' }}</td>
                 <td>{{ request.status }}</td>
-                <td>{{ request.remarks }}</td>
-                <td>{{ request.payment }}</td>
+                <td>
+                    {% if request.status.lower() not in ['requested', 'closed'] %}
+                        <button class="btn btn-primary btn-sm" onclick="handleAction('{{ request.id }}')">
+                            Take Action
+                        </button>
+                    {% else %}
+                        <span>{{ request.status }}</span>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    function handleAction(requestId) {
+        alert('Take action for request ID: ' + requestId);
+        // Implement your action logic here
+    }
+</script>

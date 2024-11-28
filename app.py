@@ -5,7 +5,14 @@ from flask_sqlalchemy import SQLAlchemy
 #from flask_swagger import swagger
 
 
+from flask_wtf.csrf import CSRFProtect
+
+
+
+
 app = Flask(__name__)
+#app.secret_key = 'jatinisgood'  # Necessary for CSRF protection
+#csrf = CSRFProtect(app)
 
 import config
 # Initialize the SQLAlchemy instance and bind it to the app

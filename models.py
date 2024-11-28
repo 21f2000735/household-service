@@ -41,6 +41,7 @@ class Service(BaseModel):
     time_required = db.Column(db.String(50), nullable=True)  # Made nullable
     description = db.Column(db.Text, nullable=True)  # Made nullable
     professional_id = db.Column(db.Integer, db.ForeignKey('service_professional.id'), nullable=True)
+    service_type_id= db.Column(db.Integer, nullable=True)  # Made nullable
     professional = db.relationship('ServiceProfessional', backref='services', lazy=True)
 
 class ServiceProfessional(BaseModel):
@@ -62,6 +63,7 @@ class ServiceRequest(BaseModel):
     date_of_request = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)  # Made nullable
     date_of_completion = db.Column(db.DateTime, nullable=True)  # Made nullable
     service_status = db.Column(db.String(50), default="requested", nullable=True)  # Made nullable
+    service_type_id= db.Column(db.Integer, nullable=True)  # Made nullable
     remarks = db.Column(db.Text, nullable=True)  # Made nullable
     payment = db.relationship('Payment', backref='service_request', lazy=True)
 

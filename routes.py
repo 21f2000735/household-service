@@ -184,103 +184,141 @@ def reset_db():
     models.reset_database()  # Reset the database (drop and recreate tables)
     return "Database has been reset!"
 
+
+################################ Customer API##############
+
+def enrich_service_requests(service_requests, customer, mappings):
+    """
+    Enrich service requests with additional details for rendering.
+    """
+    enriched_requests = []
+    for request in service_requests:
+        professional_name = (
+            mappings['professional_mapping'][request.professional_id].name
+            if request.professional_id and request.professional_id in mappings['professional_mapping']
+            else 'Professional Not Assigned'
+        )
+        professional_phone = (
+            mappings['professional_mapping'][request.professional_id].phone
+            if request.professional_id and request.professional_id in mappings['professional_mapping']
+            else 'N/A'
+        )
+        service_name = (
+            mappings['service_type_mapping'][request.service_id].name
+            if request.service_id in mappings['service_type_mapping']
+            else 'Service Not Found'
+        )
+        enriched_requests.append({
+            'id': request.id,
+            'customer_name': customer.name,
+            'professional_name': professional_name,
+            'professional_phone': professional_phone,
+            'service_name': service_name,
+            'status': request.service_status or 'N/A',
+        })
+    return enriched_requests
+
 @app.route('/customers/home')
 def customers_home():
-    # Create mappings for IDs to their objects
-    mappings = create_id_mappings()
-    customer = Customer.query.filter_by(id=session['userId']).first()  # Adjust the filter based on how you identify the customer
+    try:
+        # Create mappings for IDs to their objects
+        mappings = create_id_mappings()
 
+        # Get the current logged-in customer
+        customer = Customer.query.filter_by(id=session['userId']).first()
+        if not customer:
+            return "Customer not found", 404
 
-    # Fetch all service requests from the database
-    service_requests = ServiceRequest.query.all()
-    services = Service.query.all()
+        # Fetch all service requests for this customer
+        service_requests = ServiceRequest.query.filter_by(customer_id=customer.id).all()
 
-    # Transform service requests data to a more readable format with names
-    enriched_service_requests = []
-    for request in service_requests:
-        enriched_request = {
-            'id': request.id,
-            'customer_name': mappings['customer_mapping'][request.customer_id].name,
-            'professional_name': mappings['professional_mapping'][request.professional_id].name,
-            'service_name': mappings['service_type_mapping'][request.service_id].name,
-            'date_of_request': request.date_of_request,
-            'date_of_completion': request.date_of_completion,
-            'status': request.service_status,
-            'remarks': request.remarks,
-            'payment': request.payment
-        }
-        enriched_service_requests.append(enriched_request)
+        # Enrich service requests using the helper function
+        enriched_service_requests = enrich_service_requests(service_requests, customer, mappings)
 
-    return render_template(
-        'customers/home.html',
-        customer= customer,
-        service_types=ServiceType.list_all(),
-        services=services,
-        service_type_mapping=mappings['service_type_mapping'],
-        service_requests=enriched_service_requests,  # Pass the enriched data with names
-        customer_mapping=mappings['customer_mapping'],
-        professional_mapping=mappings['professional_mapping']
-    )
-
+        return render_template(
+            'customers/home.html',
+            customer=customer,
+            service_requests=enriched_service_requests,
+            service_types=ServiceType.list_all(),
+            services=Service.query.all(),
+            service_type_mapping=mappings['service_type_mapping'],
+            customer_mapping=mappings['customer_mapping'],
+            professional_mapping=mappings['professional_mapping']
+        )
+    except Exception as e:
+        return f"An error occurred while loading customer home: {e}", 500
 
 
 @app.route('/customers/best_package/<int:service_type_id>', methods=['POST'])
 def view_package(service_type_id):
     try:
-        # Fetch customer info from the session
+        # Get the current logged-in customer
         customer = Customer.query.filter_by(id=session['userId']).first()
+        if not customer:
+            return "Customer not found", 404
 
-        # Fetch all service requests (could be filtered if needed)
-        service_requests = ServiceRequest.query.all()
-
-        # Fetch services based on the service_type_id
-        if service_type_id:
-            # Filter services based on the selected service type
-            services = Service.query.all()
-        else:
-            # If no service_type_id is provided, fetch all services
-            services = Service.query.all()
-        service_type = next(
-            (stype for stype in ServiceType.list_all() if stype.id == service_type_id), 
-            None
+        # Fetch services for the given service type
+        services = (
+            Service.query.filter_by(service_type_id=service_type_id).all()
+            if service_type_id
+            else Service.query.all()
         )
 
-        # Render the 'best_package.html' template and pass the required variables
-        return render_template( 
-            'customers/home_best_package.html',  # First argument is the template name
-            service_type=service_type,
-            customer=customer,  # The customer variable
-            services=services,  # The services variable
-            service_requests=service_requests  # The service_requests variable
+        # Fetch all service requests for the customer
+        service_requests = ServiceRequest.query.filter_by(customer_id=customer.id).all()
+
+        # Enrich service requests using the helper function
+        enriched_service_requests = enrich_service_requests(service_requests, customer, create_id_mappings())
+
+        return render_template(
+            'customers/home_best_package.html',
+            service_type=next(
+                (stype for stype in ServiceType.list_all() if stype.id == service_type_id), None
+            ),
+            customer=customer,
+            services=services,
+            service_requests=enriched_service_requests
         )
     except Exception as e:
-        # Handle any errors that occur during the process
-        return f"An error occurred: {e}", 500
+        return f"An error occurred while loading the best package view: {e}", 500
 
 
 
 
-@app.route('/customers/new-service-request/<int:service_id>', methods=['POST'])
-def view_package(service_id):
+@app.route('/customers/new_service_request/', methods=['POST'])
+def new_service_request():
     try:
         # Fetch customer info from the session
+        #validate_csrf_token()
+        service_id = request.form.get('service_id')
+        remark = request.form.get('remark', '')  # Optional field
+        payment_option = request.form.get('payment_option')
         customer = Customer.query.filter_by(id=session['userId']).first()
-
         # Fetch all service requests (could be filtered if needed)
         service_requests = ServiceRequest.query.all()
-
+        print(service_id)
         if service_id: 
             service = Service.query.get_or_404(service_id)
             service_request = ServiceRequest(
                 service_id=service.id,
                 customer_id=customer.id,
                 service_status="requested",
-                remarks=""
+                remarks=remark
             )
+            print(service_request)
             db.session.add(service_request)
-            
+            db.session.commit()
+
         return redirect(url_for('customers_home'))    
        
     except Exception as e:
         # Handle any errors that occur during the process
         return f"An error occurred: {e}", 500
+
+
+from flask import request, abort
+
+def validate_csrf_token():
+    token = session.get('_csrf_token', None)
+    if not token or token != request.form.get('csrf_token'):
+        abort(403)  # Forbidden

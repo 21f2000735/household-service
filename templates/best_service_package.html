@@ -8,7 +8,7 @@
                 <th>Base Price</th>
                 <th>Time Required</th>
                 <th>Description</th>
-                <th>Book</th>   
+                <th>Book</th>
             </tr>
         </thead>
         <tbody>
@@ -16,19 +16,77 @@
                 <tr>
                     <td>{{ service.id }}</td>
                     <td>{{ service.name }}</td>
-                    <td>{{ service.base_price }}</td>
+                    <td>${{ service.base_price }}</td>
                     <td>{{ service.time_required }}</td>
                     <td>{{ service.description }}</td>
                     <td>
-                        <form method="post" action="new-service-request/{{ service.id }}" onsubmit="">
-                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newServiceModal" 
-                            data-service-id="{{ service.id }}">
-                        Book
-                    </button>
+                        <button type="button" 
+                                class="btn btn-success btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#newServiceModal"
+                                data-service-id="{{ service.id }}"
+                                data-service-name="{{ service.name }}">
+                            Book
+                        </button>
                     </td>
-                   
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-  
+</div>
+
+<!-- Modal Structure -->
+<div class="modal fade" id="newServiceModal" tabindex="-1" aria-labelledby="newServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" action="/customers/new_service_request/">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newServiceModalLabel">Book Service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Service: <span id="modal-service-name"></span></p>
+                    
+                    <!-- Hidden input for service ID -->
+                    <input type="hidden" name="service_id" id="modal-service-id">
+
+                    <!-- Remark Input -->
+                    <div class="mb-3">
+                        <label for="remark" class="form-label">Remark (optional):</label>
+                        <textarea class="form-control" id="remark" name="remark" rows="3"></textarea>
+                    </div>
+
+                    <!-- COD Option -->
+                    <div class="mb-3">
+                        <label for="cod_option" class="form-label">Payment Option:</label>
+                        <select class="form-select" id="cod_option" name="payment_option" required>
+                            <option value="COD">Cash on Delivery</option>
+                            <option value="Online">Online Payment</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% block scripts %}
+<script>
+    const newServiceModal = document.getElementById('newServiceModal');
+    newServiceModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        const serviceId = button.getAttribute('data-service-id');
+        const serviceName = button.getAttribute('data-service-name');
+
+        // Update modal content
+        document.getElementById('modal-service-name').textContent = serviceName;
+        document.getElementById('modal-service-id').value = serviceId;
+    });
+</script>
+
+{% endblock %}
