@@ -1,0 +1,31 @@
+<h2>Past Service Requests</h2>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Service Name</th>
+                <th>Customer</th>
+                <th>Professional</th>
+                <th>Date of Request</th>
+                <th>Date of Completion</th>
+                <th>Status</th>
+                <th>Remarks</th>
+                <th>Payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in service_requests %}
+            <tr>
+                <td>{{ request.service_name }}</td>
+                <td>{{ request.customer_name }}</td>
+                <td>{{ request.professional_name }}</td>
+                <td>{{ request.date_of_request }}</td>
+                <td>{{ request.date_of_completion }}</td>
+                <td>{{ request.status }}</td>
+                <td>{{ request.remarks }}</td>
+                <td>{{ request.payment }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

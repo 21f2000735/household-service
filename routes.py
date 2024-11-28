@@ -75,25 +75,16 @@ def admin_home():
         service_requests=service_requests
     )
 
-
-
-@app.route('/customers/home')
-def customers_home():
-     # Fetch data from the database
-    professionals = ServiceProfessional.query.all()
-    services = Service.query.all()
-    service_requests = ServiceRequest.query.all()
-
-    # Get all service types from the enum
-    service_types = ServiceType.list_all()
-    
-    return render_template(
-        'customers/home.html',
-        professionals=professionals,
-        services=services,
-        service_requests=service_requests,
-        service_types= service_types
-    )
+def create_id_mappings():
+    # Assuming `ServiceType`, `Customer`, `Professional` are your models
+    service_type_mapping = {st.id: st for st in ServiceType}
+    customer_mapping = {c.id: c for c in Customer.query.all()}
+    professional_mapping = {p.id: p for p in ServiceProfessional.query.all()}
+    return {
+        'service_type_mapping': service_type_mapping,
+        'customer_mapping': customer_mapping,
+        'professional_mapping': professional_mapping
+    }
 
 
 
@@ -193,12 +184,103 @@ def reset_db():
     models.reset_database()  # Reset the database (drop and recreate tables)
     return "Database has been reset!"
 
-@app.route('/service/<int:service_type_id>/best-price')
-def get_best_price_services(service_type_id):
-    services = (
-        ServiceProfessional.query
-        #.filter_by(service_type_id=service_type_id)
-        .order_by(ServiceProfessional.base_price.asc())  # Sort by base price
-        .all()
+@app.route('/customers/home')
+def customers_home():
+    # Create mappings for IDs to their objects
+    mappings = create_id_mappings()
+    customer = Customer.query.filter_by(id=session['userId']).first()  # Adjust the filter based on how you identify the customer
+
+
+    # Fetch all service requests from the database
+    service_requests = ServiceRequest.query.all()
+    services = Service.query.all()
+
+    # Transform service requests data to a more readable format with names
+    enriched_service_requests = []
+    for request in service_requests:
+        enriched_request = {
+            'id': request.id,
+            'customer_name': mappings['customer_mapping'][request.customer_id].name,
+            'professional_name': mappings['professional_mapping'][request.professional_id].name,
+            'service_name': mappings['service_type_mapping'][request.service_id].name,
+            'date_of_request': request.date_of_request,
+            'date_of_completion': request.date_of_completion,
+            'status': request.service_status,
+            'remarks': request.remarks,
+            'payment': request.payment
+        }
+        enriched_service_requests.append(enriched_request)
+
+    return render_template(
+        'customers/home.html',
+        customer= customer,
+        service_types=ServiceType.list_all(),
+        services=services,
+        service_type_mapping=mappings['service_type_mapping'],
+        service_requests=enriched_service_requests,  # Pass the enriched data with names
+        customer_mapping=mappings['customer_mapping'],
+        professional_mapping=mappings['professional_mapping']
     )
-    return render_template('partials/best_price_services.html', services=services)
+
+
+
+@app.route('/customers/best_package/<int:service_type_id>', methods=['POST'])
+def view_package(service_type_id):
+    try:
+        # Fetch customer info from the session
+        customer = Customer.query.filter_by(id=session['userId']).first()
+
+        # Fetch all service requests (could be filtered if needed)
+        service_requests = ServiceRequest.query.all()
+
+        # Fetch services based on the service_type_id
+        if service_type_id:
+            # Filter services based on the selected service type
+            services = Service.query.all()
+        else:
+            # If no service_type_id is provided, fetch all services
+            services = Service.query.all()
+        service_type = next(
+            (stype for stype in ServiceType.list_all() if stype.id == service_type_id), 
+            None
+        )
+
+        # Render the 'best_package.html' template and pass the required variables
+        return render_template( 
+            'customers/home_best_package.html',  # First argument is the template name
+            service_type=service_type,
+            customer=customer,  # The customer variable
+            services=services,  # The services variable
+            service_requests=service_requests  # The service_requests variable
+        )
+    except Exception as e:
+        # Handle any errors that occur during the process
+        return f"An error occurred: {e}", 500
+
+
+
+
+@app.route('/customers/new-service-request/<int:service_id>', methods=['POST'])
+def view_package(service_id):
+    try:
+        # Fetch customer info from the session
+        customer = Customer.query.filter_by(id=session['userId']).first()
+
+        # Fetch all service requests (could be filtered if needed)
+        service_requests = ServiceRequest.query.all()
+
+        if service_id: 
+            service = Service.query.get_or_404(service_id)
+            service_request = ServiceRequest(
+                service_id=service.id,
+                customer_id=customer.id,
+                service_status="requested",
+                remarks=""
+            )
+            db.session.add(service_request)
+            
+        return redirect(url_for('customers_home'))    
+       
+    except Exception as e:
+        # Handle any errors that occur during the process
+        return f"An error occurred: {e}", 500
