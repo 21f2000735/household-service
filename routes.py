@@ -89,6 +89,8 @@ def add_edit_service():
     service_description = request.form['service_description']
     service_base_price = request.form['base_price']
     service_time_required = request.form['time_required']
+    service_type_id = request.form['service_type_id'] #holds id
+    print('ser')
     print(service_id)
     print(service_name)
     print(service_description)
@@ -105,7 +107,8 @@ def add_edit_service():
                 name=service_name,
                 description=service_description,
                 base_price=float(service_base_price),
-                time_required=service_time_required
+                time_required=service_time_required,
+                service_type_id=service_type_id
             )
         db.session.add(service)
 
@@ -550,14 +553,21 @@ def admin_home():
     )
 
 
+@app.route('/admin/services')
+def admin_services():
+    # Replace with your logic to fetch service data and render the template
+    # Fetch all service requests for this customer
+      # Create mappings for IDs to their objects
+        mappings = create_id_mappings()
 
+      
+        return render_template(
+            'admin_services.html',
+            service_types=ServiceType.list_all(),
+            services=Service.query.all(),
+            service_type_mapping=mappings['service_type_mapping'],
+            customer_mapping=mappings['customer_mapping'],
+            professional_mapping=mappings['professional_mapping']
+        )
 
 ################ Admin End ##########
-
-
-from flask import request, abort
-
-def validate_csrf_token():
-    token = session.get('_csrf_token', None)
-    if not token or token != request.form.get('csrf_token'):
-        abort(403)  # Forbidden

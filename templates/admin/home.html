@@ -12,11 +12,11 @@
         <div>
         {% include 'admin_services_list.html' %}
         </div>
-        <div>
-        <button type="button" class="btn btn-success pull-right" data-bs-toggle="modal" data-bs-target="#newServiceModal">
+        <button type="button" class="btn btn-success float-end me-2" data-bs-toggle="modal" data-bs-target="#newServiceModal">
             + New Service
         </button>
-        </div>
+        <div></div>
+        
 
         <!-- Include the admin_professionals.html Section -->
     {% include 'admin_professionals.html' %}
@@ -28,28 +28,5 @@
         
     </div>
 
-    {% endblock %}
-    {% block scripts %}
-    <script>
-        // When the Edit button is clicked, populate the modal with the current row's data
-        var editButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target="#newServiceModal"]');
-        editButtons.forEach(function(button) {
-            button.addEventListener('click', function () {
-                // Get data attributes
-                var serviceId = button.getAttribute('data-service-id');
-                var serviceName = button.getAttribute('data-service-name');
-                var serviceDescription = button.getAttribute('data-service-description');
-                var serviceBasePrice = button.getAttribute('data-service-base-price');
-                var serviceTimeRequired = button.getAttribute('data-service-time-required');
-    
-                // Set values in the modal
-                document.getElementById('serviceId').value = serviceId;
-                document.getElementById('serviceName').value = serviceName;
-                document.getElementById('serviceDescription').value = serviceDescription;
-                document.getElementById('basePrice').value = serviceBasePrice;
-                document.getElementById('timeRequired').value = serviceTimeRequired;
-            });
-        });
-    </script>
     {% endblock %}
     
