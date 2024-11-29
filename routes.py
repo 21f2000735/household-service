@@ -6,14 +6,14 @@ from models import Admin, Customer, ServiceProfessional , Service, ServiceReques
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from flask_sqlalchemy import SQLAlchemy
-from datetime import date
+from datetime import date, datetime
 from flask import Flask, jsonify
 from flask_swagger import swagger
 from enums import ServiceType, ServiceRequestStatus
 from sqlalchemy import or_, and_
 
 from config import *
-
+todaydate = datetime.utcnow()
 
 @app.route('/')
 def index():
@@ -403,6 +403,7 @@ def service_request_action(service_request_id, action):
         if service_request.service_status == ServiceRequestStatus.ASSIGNED.display_name:  # Only close if the request is in 'Assigned' state
             service_request.service_status = ServiceRequestStatus.CLOSED.display_name
             service_request.professional_id = session['userId']
+            service_request.date_of_completion = todaydate
         else:
             flash("Request cannot be closed. It is not in the 'Assigned' state.", "error")
             return redirect(url_for('professionals_home'))

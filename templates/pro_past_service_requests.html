@@ -1,6 +1,11 @@
 <h2>Closed Service Requests</h2>
 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-    <table class="table table-bordered table-striped">
+    <!-- Search Input -->
+    <div class="mb-3">
+        <input type="text" id="serviceRequestSearch" class="form-control" placeholder="Search in table...">
+    </div>
+
+    <table class="table table-bordered table-striped" id="serviceRequestsTable">
         <thead>
             <tr>
                 <th>S.No</th>
@@ -10,6 +15,7 @@
                 <th>Customer Pincode</th>
                 <th>Date</th>
                 <th>Customer Rating</th>
+                <th>Remark</th> <!-- New Remark Column -->
             </tr>
         </thead>
         <tbody>
@@ -22,8 +28,39 @@
                 <td>{{ request.customer_pincode if request.customer_pincode else 'N/A' }}</td>
                 <td>{{ request.date_of_request if request.date_of_request else 'N/A' }}</td>
                 <td>{{ request.customer_rating if request.customer_rating else 'N/A' }}</td>
+                <td> {% if request.remarks %}
+                    {% set trimmed_remarks = request.remarks[:10] if request.remarks|length > 10 else request.remarks %}
+                    <span 
+                        data-toggle="tooltip" 
+                        title="{{ request.remarks }}" 
+                        style="max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ trimmed_remarks }}{% if request.remarks|length > 10 %}...{% endif %}
+                    </span>
+                {% else %}
+                    N/A
+                {% endif %}</td> <!-- Display remark -->
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    // Implement table search functionality
+    document.getElementById('serviceRequestSearch').addEventListener('input', function() {
+        var searchValue = this.value.toLowerCase();
+        var table = document.getElementById('serviceRequestsTable');
+        var rows = table.getElementsByTagName('tr');
+        
+        for (var i = 1; i < rows.length; i++) { // Start at 1 to skip the header row
+            var cells = rows[i].getElementsByTagName('td');
+            var rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+            
+            if (rowText.includes(searchValue)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    });
+</script>
