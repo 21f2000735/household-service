@@ -43,26 +43,29 @@ class ServiceRequestStatus(Enum): #requested/assigned/closed
         return self.display_name
 
 
+from enum import Enum
+
 class ServiceType(Enum):
-    PLUMBING = (1, "Plumber", 500.0, "image/plumbing.png")
-    ELECTRICAL = (2, "Electrician", 500.0, "image/electrician.png")
-    CLEANING = (3, "Cleaner", 300.0, "image/cleaning.png")
-    GARDENING = (4, "Gardener", 300.0, "image/gardening.png")
+    PLUMBING = (1, "Plumber", 500.0, "image/plumbing.png", "Fix leaks, clogs, and pipe issues.")
+    ELECTRICAL = (2, "Electrician", 500.0, "image/electrician.png", "Install and repair electrical systems.")
+    CLEANING = (3, "Cleaner", 300.0, "image/cleaning.png", "Thorough home and office cleaning services.")
+    GARDENING = (4, "Gardener", 300.0, "image/gardening.png", "Maintain your garden with care.")
 
-
-    def __init__(self, id, display_name, base_price, image_url):
-        self.id = id  # Unique identifier for the service
-        self.display_name = display_name  # Human-readable name
-        self.base_price = base_price  # Default price for the service
-        self.image_url = image_url  # Image URL for the service
+    def __init__(self, id, display_name, base_price, image_url, description):
+        self.id = id
+        self.display_name = display_name
+        self.base_price = base_price
+        self.image_url = image_url
+        self.description = description
 
     @classmethod
     def get_by_id(cls, id):
         for service_type in cls:
             if service_type.id == id:
                 return service_type
-        return cls.OTHER
+        return None
 
     @classmethod
     def list_all(cls):
-        return [service_type for service_type in cls]
+        return list(cls)
+

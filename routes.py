@@ -328,6 +328,24 @@ def new_service_request():
         return f"An error occurred: {e}", 500
 
 
+@app.route('/customers/services')
+def customer_services():
+    # Replace with your logic to fetch service data and render the template
+    # Fetch all service requests for this customer
+      # Create mappings for IDs to their objects
+        mappings = create_id_mappings()
+
+      
+        return render_template(
+            'customer_services.html',
+            service_types=ServiceType.list_all(),
+            services=Service.query.all(),
+            service_type_mapping=mappings['service_type_mapping'],
+            customer_mapping=mappings['customer_mapping'],
+            professional_mapping=mappings['professional_mapping']
+        )
+
+
 ################################ Customer API End##############
 
 ################################ Professional  API Start ##############

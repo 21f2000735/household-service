@@ -6,7 +6,6 @@
     <div class="row">
         <!-- Center content with 10% free space on both sides -->
         <div class="col-md-8 col-md-offset-3" style="margin-left: 15%; ">
-            <h1 class="text-center">Welcome, {{ customer.name }}</h1> <!-- Display customer name -->
             <h2 class="text-muted ">Home Services at Your Doorstep</h2>
 
             <!-- Available Services Section -->
@@ -15,19 +14,11 @@
                     <strong>Available Services</strong>
                 </div>
                 <div class="panel-body">
-                    {% include 'service_cards.html' %}
+                    {% include 'service_details.html' %}
                 </div>
             </div>
 
-            <!-- Past Service Requests Section -->
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Your Past Service Requests</strong>
-                </div>
-                <div class="panel-body">
-                    {% include 'past_service_requests.html' %}
-                </div>
-            </div>
+          
         </div>
     </div>
 </div>
