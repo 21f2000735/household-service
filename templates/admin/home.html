@@ -9,8 +9,14 @@
         
 
         <!-- Services Table -->
+        <div>
         {% include 'admin_services_list.html' %}
-        
+        </div>
+        <div>
+        <button type="button" class="btn btn-success pull-right" data-bs-toggle="modal" data-bs-target="#newServiceModal">
+            + New Service
+        </button>
+        </div>
 
         <!-- Include the admin_professionals.html Section -->
     {% include 'admin_professionals.html' %}

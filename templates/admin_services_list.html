@@ -1,6 +1,12 @@
-<h2>List of Services</h2>
+<!-- Search Input -->
+<div class="mb-3">
+    
+    <h4 for="searchInputRequests" class="form-label"><strong>Search Services:</strong></h4>
+    <input type="text" class="form-control" id="tableSearch" placeholder="Search by name, description, etc." onkeyup="searchTable()">
+</div>
+
 <div class="table-responsive">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" id="servicesTable">
         <thead>
             <tr>
                 <th>ID</th>
@@ -23,14 +29,11 @@
                     <td>
                         <span 
                             data-bs-toggle="tooltip" 
-                            title="{{ service.description if service.description|length <= 15 else service.description[:15] ~ '...'}}">
-                            {{ service.description[:15] if service.description|length > 15 else service.description }}
+                            title="{{ service.description if service.description|length <= 50 else service.description[:50] ~ '...'}}">
+                            {{ service.description[:50] if service.description|length <= 50 else service.description }}
                         </span>
                     </td>
-                   
                     <td>{{ service.service_type_name if service.service_type_name else 'Service Type Not Found' }}</td>
-
-                   
                     <td>
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#newServiceModal" 
                                 data-service-id="{{ service.id }}"
@@ -52,12 +55,9 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
 
-    <button type="button" class="btn btn-success pull-right" data-bs-toggle="modal" data-bs-target="#newServiceModal">
-        + New Service
-    </button>
-
-<!-- Modal -->
+<!-- Modal for Edit -->
 <div class="modal fade" id="newServiceModal" tabindex="-1" aria-labelledby="newServiceModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -99,13 +99,12 @@
         </div>
     </div>
 </div>
-</div>
 
 <script>
     // Initialize Tooltip for Description field
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
+        return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
     // Pre-fill modal for editing service
@@ -127,7 +126,32 @@
         modal.find('#price').val(serviceBasePrice);
         modal.find('#timeRequired').val(serviceTimeRequired);
         modal.find('#serviceType').val(serviceTypeId);
-        
         modal.find('#serviceTypeName').val(serviceTypeName);
     });
+
+    // Search Function for Filtering
+    function searchTable() {
+        const searchTerm = document.getElementById('tableSearch').value.toLowerCase(); // Correct ID
+        const table = document.getElementById('servicesTable');
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+            const cells = rows[i].getElementsByTagName('td');
+            let rowContainsSearchTerm = false;
+
+            for (let j = 0; j < cells.length; j++) {
+                const cell = cells[j];
+                if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                    rowContainsSearchTerm = true;
+                    break;
+                }
+            }
+
+            if (rowContainsSearchTerm) {
+                rows[i].style.display = ''; // Show row
+            } else {
+                rows[i].style.display = 'none'; // Hide row
+            }
+        }
+    }
 </script>
