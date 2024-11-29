@@ -419,7 +419,59 @@ def service_request_action(service_request_id, action):
     return redirect(url_for('professionals_home'))
 
 
-################### Professional End point End #############
+################### Professional End point End ############# 
+################### Amdin Start###############
+@app.route('/professionals/action', methods=['POST'])
+def handle_professional_action():
+    from flask import flash
+
+    def process_action(professional, action):
+        """Process the given action on the professional."""
+        if action == 'approve':
+            professional.approved = True
+            return f"Professional {professional.name} approved successfully.", "success"
+        elif action == 'reject':
+            professional.approved = False
+            return f"Professional {professional.name} rejected successfully.", "warning"
+        elif action == 'delete':
+            db.session.delete(professional)
+            return f"Professional {professional.name} deleted successfully.", "danger"
+        else:
+            return "Invalid action. No changes were made.", "error"
+
+    # Get the form data
+    professional_id = request.form.get('professional_id')
+    action = request.form.get('action')
+
+    # Find the professional in the database
+    professional = ServiceProfessional.query.filter_by(id=professional_id).first()
+
+    if not professional:
+        flash(f"Professional with ID {professional_id} not found.", "error")
+        return redirect(url_for('admin_home'))
+
+    try:
+        # Process the action and get a message
+        message, category = process_action(professional, action)
+        db.session.commit()  # Commit changes to the database
+        flash(message, category)
+
+    except Exception as e:
+        db.session.rollback()  # Rollback transaction on error
+        flash(f"An error occurred: {str(e)}", "error")
+
+    return redirect(url_for('admin_home'))
+
+
+
+
+
+
+
+
+
+
+################ Admin End##########
 
 from flask import request, abort
 

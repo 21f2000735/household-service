@@ -96,38 +96,9 @@
             
         </div>
 
-        <!-- Professionals Table -->
-        <h2>List of Professionals</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Service Type</th>
-                        <th>Experience (Years)</th>
-                        <th>Approved</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for professional in professionals %}
-                        <tr>
-                            <td>{{ professional.id }}</td>
-                            <td>{{ professional.name }}</td>
-                            <td>{{ professional.email }}</td>
-                            <td>{{ professional.phone }}</td>
-                            <td>{{ professional.service_type }}</td>
-                            <td>{{ professional.experience }}</td>
-                            <td>{{ 'Yes' if professional.approved else 'No' }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        
+        <!-- Include the admin_professionals.html Section -->
+    {% include 'admin_professionals.html' %}
+    
         <!-- Service Requests Table -->
         <h2>List of Service Requests</h2>
         <div class="table-responsive">

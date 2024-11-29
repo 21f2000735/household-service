@@ -11,10 +11,13 @@
             </div>
             <form method="post" action="best_package/{{ service_type.id }}" onsubmit="">
                 <button class="btn btn-primary view-packages-btn" data-service-id="{{ service_type.id }}" 
-                    style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
-                View Packages  <strong>Base Price:</strong> INR {{ service_type.base_price }}
-            </button>
+                    style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
+                           width: 80%; text-align: center; white-space: normal;">
+                    Packages<br><strong>Base Price: INR {{ service_type.base_price }}</strong>
+                </button>
             </form>
+            
+            
             
         </div>
     </div>

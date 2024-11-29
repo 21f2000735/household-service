@@ -44,10 +44,10 @@ class ServiceRequestStatus(Enum): #requested/assigned/closed
 
 
 class ServiceType(Enum):
-    PLUMBING = (1, "Plumbing", 500.0, "image/plumbing.png")
-    ELECTRICAL = (2, "Electrical", 700.0, "image/electrician.png")
-    CLEANING = (3, "Cleaning", 300.0, "image/cleaning.png")
-    GARDENING = (4, "Gardening", 400.0, "image/gardening.png")
+    PLUMBING = (1, "Plumber", 500.0, "image/plumbing.png")
+    ELECTRICAL = (2, "Electrician", 500.0, "image/electrician.png")
+    CLEANING = (3, "Cleaner", 300.0, "image/cleaning.png")
+    GARDENING = (4, "Gardener", 300.0, "image/gardening.png")
 
 
     def __init__(self, id, display_name, base_price, image_url):

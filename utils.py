@@ -2,6 +2,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash
 from models import Admin, Customer, Service, ServiceProfessional, ServiceRequest, Payment, Feedback, FeedbackType, PaymentStatus
 from app import app, db
+from enums import *
 
 def create_or_get_admin():
     with app.app_context():  
@@ -87,7 +88,7 @@ def create_or_get_service_request(customer, service, professional):
                 service_type_id=service.service_type_id,
                 customer_id=customer.id,
                 professional_id=professional.id,
-                service_status="requested",
+                service_status=ServiceRequestStatus.CLOSED.display_name,
                 remarks="Fix leaking pipe"
             )
             db.session.add(service_request)
