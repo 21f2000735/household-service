@@ -42,7 +42,7 @@ def create_or_get_service():
             if not service:
                 # If service doesn't exist, create a new one for the service_type
                 service = Service(
-                    name=service_type.display_name,
+                    name=service_type.display_name + ' Demo package',
                     base_price=service_type.base_price,
                     time_required="2 hours",  # You can adjust the time as needed
                     description=service_type.description,
@@ -90,6 +90,7 @@ def create_or_get_service_request(customer, service, professional):
         service_request = ServiceRequest.query.filter_by(
             customer_id=customer.id, service_id=service.id
         ).first()
+         #service = Service.query.filter_by(service_type_id=service_type.id).first()
 
         if not service_request:
             # If the service request doesn't exist, create a new one
@@ -99,6 +100,7 @@ def create_or_get_service_request(customer, service, professional):
                 customer_id=customer.id,
                 professional_id=professional.id,
                 service_status=ServiceRequestStatus.CLOSED.display_name,
+                service_name='Test Service:',
                 remarks="Fix leaking pipe"
             )
             db.session.add(service_request)

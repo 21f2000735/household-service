@@ -59,12 +59,13 @@ class ServiceProfessional(BaseModel):
 class ServiceRequest(BaseModel):
     __tablename__ = 'service_request'
     service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)  # Made nullable
+    service_name = db.Column(db.String(50), nullable=False)  # Made nullable
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
     professional_id = db.Column(db.Integer, db.ForeignKey('service_professional.id'), nullable=True)
     date_of_request = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)  # Made nullable
     date_of_completion = db.Column(db.DateTime, nullable=True)  # Made nullable
     service_status = db.Column(db.String(50), default="requested", nullable=True)  # Made nullable
-    service_type_id= db.Column(db.Integer, nullable=True)  # Made nullable
+    service_type_id= db.Column(db.Integer, nullable=False)  
     remarks = db.Column(db.Text, nullable=True)  # Made nullable
     rejected_by_professional_id= db.Column(db.Integer, nullable=True)  # Made nullable
     rating = db.Column(db.Text, nullable=True)  # Made nullable

@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Overall Customer Rating -->
+        <div class="col-md-6">
+            <h3>Overall Customer Rating</h3>
+            <canvas id="customerRatingChart"></canvas>
+        </div>
+
+        <!-- Service Request Summary -->
+        <div class="col-md-6">
+            <h3>Service Request Summary</h3>
+            <canvas id="serviceRequestChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Customer Rating Chart
+    var ctx1 = document.getElementById('customerRatingChart').getContext('2d');
+    var customerRatingChart = new Chart(ctx1, {
+        type: 'doughnut',  // Circle chart
+        data: {
+            labels: ['Excellent', 'Good', 'Average', 'Poor'],
+            datasets: [{
+                label: 'Customer Rating',
+                data: [35, 50, 10, 5],  // Example data, replace with dynamic values
+                backgroundColor: ['#4caf50', '#ffeb3b', '#ff9800', '#f44336'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            }
+        }
+    });
+
+    // Service Request Chart
+    var ctx2 = document.getElementById('serviceRequestChart').getContext('2d');
+    var serviceRequestChart = new Chart(ctx2, {
+        type: 'bar',  // Bar chart
+        data: {
+            labels: ['Requested', 'Completed', 'Cancelled'],
+            datasets: [{
+                label: 'Service Requests',
+                data: [120, 80, 20],  // Example data, replace with dynamic values
+                backgroundColor: '#2196F3',
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

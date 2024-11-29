@@ -68,4 +68,12 @@ class ServiceType(Enum):
     @classmethod
     def list_all(cls):
         return list(cls)
+    
+    @staticmethod
+    def get_service_type_name(service_type_id):
+        # Iterate through the ServiceType enum to find the matching service_type_id
+        for service in ServiceType:
+            if service.value[0] == service_type_id:
+                return service.value[1]  # Return the name of the service (e.g., "Plumber")
+        return "Service Not Found"  # Default if no match is found
 

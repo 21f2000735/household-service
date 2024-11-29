@@ -11,13 +11,14 @@ from flask import Flask, jsonify
 from flask_swagger import swagger
 from enums import ServiceType, ServiceRequestStatus
 from sqlalchemy import or_, and_
+from models import *
 
 from config import *
 todaydate = datetime.utcnow()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('login')) 
 
 
 @app.route('/login')
@@ -62,20 +63,6 @@ def login_post():
     return redirect(url_for('login'))
 
 
-@app.route('/admin/home')
-def admin_home():
-    # Fetch data from the database
-    professionals = ServiceProfessional.query.all()
-    services = Service.query.all()
-    service_requests = ServiceRequest.query.all()
-    enriched_service_requests = enrich_service_requests(service_requests, None, create_id_mappings())
-    
-    return render_template(
-        'admin/home.html',
-        professionals=professionals,
-        services=services,
-        service_requests=enriched_service_requests
-    )
 
 def create_id_mappings():
     # Assuming `ServiceType`, `Customer`, `Professional` are your models
@@ -155,6 +142,25 @@ def reset_db():
 
 ################################ Common Methods ##############
 
+def enrich_services(services):
+    enriched_services = []
+     
+
+    for service in services:
+        service_type_name = ServiceType.get_by_id(service.service_type_id).display_name
+        
+        enriched_service = {
+            'id': service.id,
+            'name': service.name,
+            'base_price': service.base_price,
+            'time_required': service.time_required,
+            'description': service.description[:15] + '...' if service.description and len(service.description) > 15 else service.description,
+            'service_type_name': service_type_name,
+        }
+
+        enriched_services.append(enriched_service)
+
+    return enriched_services
 
 def enrich_service_requests(service_requests, customer, mappings, professional=None):
     """
@@ -162,7 +168,7 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
     If the customer is None, fetch the customer from the database.
     """
     enriched_requests = []
-    
+ 
     for request in service_requests:
         # If customer is None, fetch from the database
         if customer is None:
@@ -179,12 +185,12 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
             if request.professional_id and request.professional_id in mappings['professional_mapping']
             else 'N/A'
         )
-        service_name = (
-            mappings['service_type_mapping'][request.service_id].name
-            if request.service_id in mappings['service_type_mapping']
-            else 'Service Not Found'
+        service_type_name = (
+        ServiceType.get_by_id(request.service_type_id).display_name
+        if ServiceType.get_by_id(request.service_type_id)
+        else 'Service Type Not Found'
         )
-        
+         
         # Fetch customer details
         customer_name = customer.name if customer else 'N/A'
         customer_phone = customer.phone if customer and customer.phone else 'N/A'
@@ -198,7 +204,8 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
             professional is not None and
             request.rejected_by_professional_id == professional.id):
             continue  # Skip this request
-    
+        print(request.service_type_id)
+        print(service_type_name)
         enriched_request = {
             'id': request.id,
             'customer_name': customer_name,
@@ -208,12 +215,14 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
             'service_request_rating': request.rating or 'N/A',
             'professional_name': professional_name,
             'professional_phone': professional_phone,
-            'service_name': service_name,
+            'service_name': request.service_name,
+            'service_type_name': service_type_name,
             'date_of_request': date_of_request,
             'date_of_completion': date_of_completion,
             'status': request.service_status or 'N/A',
-            'remarks': request.remarks or 'N/A'
-        }
+            'remarks': request.remarks or 'N/A',
+            'service_type_id': request.service_type_id
+            }
         
         # If a professional parameter is provided, add professional details
         if professional:
@@ -224,7 +233,8 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
             }
         
         enriched_requests.append(enriched_request)
-    
+       
+    print(enriched_requests)
     return enriched_requests
 
 
@@ -513,14 +523,37 @@ def update_status():
         return f"An error occurred: {e}", 500
 
 
+@app.route('/admin/summary')
+def admin_summary():
+    # Example data fetch from the database (replace with real queries)
+    customer_ratings = [35, 50, 10, 5]  # Example values
+    service_requests = [120, 80, 20]    # Example values
+
+    return render_template('admin/summary.html', customer_ratings=customer_ratings, service_requests=service_requests)
+
+
+@app.route('/admin/home')
+def admin_home():
+    # Fetch data from the database
+    professionals = ServiceProfessional.query.all()
+    services = Service.query.all()
+    service_requests = ServiceRequest.query.all()
+    enriched_service_requests = enrich_service_requests(service_requests, None, create_id_mappings())
+    services_new= enrich_services(services)
+    
+    return render_template(
+        'admin/home.html',
+        professionals=professionals,
+        services=services_new,
+        service_requests=enriched_service_requests,
+        service_types=ServiceType.list_all(),
+    )
 
 
 
 
+################ Admin End ##########
 
-
-
-################ Admin End##########
 
 from flask import request, abort
 

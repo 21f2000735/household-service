@@ -1,0 +1,19 @@
+
+{% extends 'layout.html' %}
+{% include 'nav_bar.html' %}
+{% block content %}
+
+    <div class="container">
+     <h1 class="text-center">Hello {{ service_professional.name }}</h1> <!-- Display Professional name -->
+     <!-- Include the Admin Summary Section -->
+    {% include 'admin_summary.html' %}
+        
+    </div>
+
+    {% endblock %}
+    {% block scripts %}
+    <script>
+       
+    </script>
+    {% endblock %}
+    
