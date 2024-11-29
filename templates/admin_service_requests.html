@@ -1,0 +1,76 @@
+<!-- Space and Search Box for Service Requests -->
+<div class="mb-4">
+    <label for="searchInputRequests" class="form-label"><strong>Search Service Requests:</strong></label>
+    <input type="text" id="searchInputRequests" class="form-control" placeholder="Type to search...">
+</div>
+
+
+<!-- Service Requests Table -->
+<div class="table-responsive">
+    <table class="table table-bordered table-striped" id="serviceRequestsTable">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Customer Name</th>
+                <th>Customer Phone</th>
+                <th>Professional Name</th>
+                <th>Professional Phone</th>
+                <th>Service Type</th>
+                <th>Requested Date time</th>
+                <th>Remarks</th>
+                <th>Rating</th>
+                <th>Service Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in service_requests %}
+                <tr>
+                    <td>{{ loop.index }}</td>  <!-- S.No -->
+                    <td>{{ request.customer_name }}</td>
+                    <td>{{ request.customer_phone }}</td>
+                    <td>{{ request.professional_name }}</td>
+                    <td>{{ request.professional_phone }}</td>
+                    <td>{{ request.service_name }}</td>
+                    <td>{{ request.date_of_request }}</td>
+                    <td>{{ request.remarks }}</td>
+                    <td>{{ request.service_request_rating }}</td>
+                    <td>{{ request.status }}</td>
+                    <td>
+                        <!-- Button to Change Service Status -->
+                        <form method="post" action="/service_requests/update_status" style="display:inline;">
+                            <input type="hidden" name="request_id" value="{{ request.id }}">
+                            <select name="status" class="form-select form-select-sm">
+                                <option value="requested" {% if request.status == 'requested' %}selected{% endif %}>Requested</option>
+                                <option value="assigned" {% if request.status == 'assigned' %}selected{% endif %}>Assigned</option>
+                                <option value="closed" {% if request.status == 'closed' %}selected{% endif %}>Closed</option>
+                            </select>
+                            <button class="btn btn-warning btn-sm" type="submit">Update Status</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Script to handle search for Service Requests
+    document.getElementById('searchInputRequests').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase(); // Get search input in lowercase
+        const rows = document.querySelectorAll('#serviceRequestsTable tbody tr'); // Get all table rows for service requests
+
+        rows.forEach(row => {
+            // Check if any cell in the row contains the search term
+            const cells = row.querySelectorAll('td');
+            const match = Array.from(cells).some(cell =>
+                cell.textContent.toLowerCase().includes(searchTerm)
+            );
+
+            // Show row if match found, else hide it
+            row.style.display = match ? '' : 'none';
+        });
+    });
+
+    
+</script>

@@ -68,12 +68,13 @@ def admin_home():
     professionals = ServiceProfessional.query.all()
     services = Service.query.all()
     service_requests = ServiceRequest.query.all()
+    enriched_service_requests = enrich_service_requests(service_requests, None, create_id_mappings())
     
     return render_template(
         'admin/home.html',
         professionals=professionals,
         services=services,
-        service_requests=service_requests
+        service_requests=enriched_service_requests
     )
 
 def create_id_mappings():

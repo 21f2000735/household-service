@@ -1,8 +1,11 @@
-<!-- Space and Search Box -->
+
+<!-- Space and Search Box for Professionals -->
 <div class="mb-4">
-    <label for="searchInput" class="form-label"><strong>Search Professionals:</strong></label>
-    <input type="text" id="searchInput" class="form-control" placeholder="Type to search...">
+    <label for="searchInputProfessionals" class="form-label"><strong>Search Professionals:</strong></label>
+    <input type="text" id="searchInputProfessionals" class="form-control" placeholder="Type to search...">
 </div>
+
+<!-- Professionals Table -->
 <div class="table-responsive">
     <table class="table table-bordered table-striped" id="professionalsTable">
         <thead>
@@ -52,10 +55,11 @@
 </div>
 
 <script>
-    // Script to handle search functionality
-    document.getElementById('searchInput').addEventListener('input', function () {
+
+    // Script to handle search for Professionals
+    document.getElementById('searchInputProfessionals').addEventListener('input', function () {
         const searchTerm = this.value.toLowerCase(); // Get search input in lowercase
-        const rows = document.querySelectorAll('#professionalsTable tbody tr'); // Get all table rows
+        const rows = document.querySelectorAll('#professionalsTable tbody tr'); // Get all table rows for professionals
 
         rows.forEach(row => {
             // Check if any cell in the row contains the search term

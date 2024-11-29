@@ -98,39 +98,11 @@
 
         <!-- Include the admin_professionals.html Section -->
     {% include 'admin_professionals.html' %}
-    
-        <!-- Service Requests Table -->
-        <h2>List of Service Requests</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>service_id</th>
-                        <th>customer_id</th>
-                        <th>professional_id</th>
-                        <th>date_of_request</th>
-                        <th>date_of_completion</th>
-                        <th>service_status</th>
-                        <th>Remarks</th>
-                        <th>payment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for request in service_requests %}
-                        <tr>
-                            <td>{{ request.service_id }}</td>
-                            <td>{{ request.customer_id }}</td>
-                            <td>{{ request.professional_id}}</td>
-                            <td>{{ request.date_of_request  }}</td>
-                            <td>{{ request.date_of_completion }}</td>
-                            <td>{{ request.service_status }}</td>
-                            <td>{{ request.remarks }}</td>
-                            <td>{{ request.payment }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+
+            <!-- Include the service request  Section -->
+            {% include 'admin_service_requests.html' %}
+
+      
         
     </div>
 
