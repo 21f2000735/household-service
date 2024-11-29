@@ -32,18 +32,28 @@ def create_or_get_customer():
 
 def create_or_get_service():
     with app.app_context():  # Ensuring that the database operation happens inside the app context
-        service = Service.query.filter_by(name="Plumbing").first()
-        if not service:
-            service = Service(
-                name="Plumbing",
-                base_price=500.0,
-                time_required="2 hours",
-                description="All types of plumbing services",
-                service_type_id=1
-            )
-            db.session.add(service)
-            db.session.commit()  # Commit after adding the service
-        return service
+        services = []  # List to hold services for each service type
+
+        # Loop over all ServiceTypes
+        for service_type in ServiceType:
+            # Try to get the service for the current service_type
+            service = Service.query.filter_by(service_type_id=service_type.id).first()
+
+            if not service:
+                # If service doesn't exist, create a new one for the service_type
+                service = Service(
+                    name=service_type.display_name,
+                    base_price=service_type.base_price,
+                    time_required="2 hours",  # You can adjust the time as needed
+                    description=service_type.description,
+                    service_type_id=service_type.id
+                )
+                db.session.add(service)
+                db.session.commit()  # Commit after adding the service
+
+            services.append(service)  # Add the service to the list
+
+        return services
 
 def create_or_get_service_professional():
     with app.app_context():  # Ensures that the database operation happens inside the app context
@@ -168,11 +178,11 @@ def initialize_db():
     with app.app_context():
         create_or_get_admin()
         customer = create_or_get_customer()
-        service = create_or_get_service()
+        services = create_or_get_service()
         professional = create_or_get_service_professional()
-        service_request = create_or_get_service_request(customer, service, professional)
-        create_or_get_payment(service_request)
-        create_or_get_feedback(service, customer, professional)
+        service_request = create_or_get_service_request(customer, services[0], professional)
+        #create_or_get_payment(service_request)
+        #create_or_get_feedback(service, customer, professional)
 
 # Function to reset the database
 def reset_database():

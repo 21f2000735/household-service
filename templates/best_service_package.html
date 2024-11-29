@@ -25,7 +25,9 @@
                     <td>{{ service.name }}</td>
                     <td>${{ service.base_price }}</td>
                     <td>{{ service.time_required }}</td>
-                    <td>{{ service.description }}</td>
+                    <td title="{{ service.description }}">
+                        {{ service.description[:20] }}{% if service.description|length > 20 %}...{% endif %}
+                    </td>
                     <td>
                         <button type="button" 
                                 class="btn btn-success btn-sm" 

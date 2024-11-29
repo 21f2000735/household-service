@@ -46,10 +46,10 @@ class ServiceRequestStatus(Enum): #requested/assigned/closed
 from enum import Enum
 
 class ServiceType(Enum):
-    PLUMBING = (1, "Plumber", 500.0, "image/plumbing.png", "Fix leaks, clogs, and pipe issues.")
-    ELECTRICAL = (2, "Electrician", 500.0, "image/electrician.png", "Install and repair electrical systems.")
-    CLEANING = (3, "Cleaner", 300.0, "image/cleaning.png", "Thorough home and office cleaning services.")
-    GARDENING = (4, "Gardener", 300.0, "image/gardening.png", "Maintain your garden with care.")
+    PLUMBING = (1, "Plumber", 500.0, "image/plumbing.png", "Fix leaks, clogs, and pipe issues. Ensure your plumbing system is working efficiently with our expert services.")
+    ELECTRICAL = (2, "Electrician", 500.0, "image/electrician.png", "Install and repair electrical systems. Handle electrical wiring, outlets, and circuit breakers with safety and professionalism.")
+    CLEANING = (3, "Cleaner", 300.0, "image/cleaning.png", "Thorough home and office cleaning services. We offer deep cleaning for homes, carpets, and commercial spaces.")
+    GARDENING = (4, "Gardener", 300.0, "image/gardening.png", "Maintain your garden with care. Offering services like lawn care, hedge trimming, plant care, and garden design.")
 
     def __init__(self, id, display_name, base_price, image_url, description):
         self.id = id
