@@ -463,6 +463,36 @@ def handle_professional_action():
 
     return redirect(url_for('admin_home'))
 
+###########
+@app.route('/service_requests/update_status', methods=['POST'])
+def update_status():
+    request_id = request.form.get('request_id')
+    new_status = request.form.get('status')
+
+    # Validate and update the status (ensure the new status is valid)
+    if new_status not in ['requested', 'assigned', 'closed']:
+        return "Invalid status", 400  # You can handle this error more gracefully
+
+    try:
+        # Retrieve the request from the database (assuming `ServiceRequest` is your model)
+        service_request = ServiceRequest.query.get(request_id)
+        print(service_request)
+        print(service_request.service_status)
+        print(new_status)
+
+        if service_request:
+            # Update the status
+            service_request.service_status = new_status
+
+            # Commit the changes to the database
+            db.session.commit()
+
+            # Redirect to the page with a success message (optional)
+            return redirect(url_for('admin_home')) # Assuming this is your view for the list
+        else:
+            return "Service Request not found", 404  # Handle case if request ID doesn't exist
+    except Exception as e:
+        return f"An error occurred: {e}", 500
 
 
 
