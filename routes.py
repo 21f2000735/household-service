@@ -191,8 +191,8 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
  
     for request in service_requests:
         # If customer is None, fetch from the database
-        if customer is None:
-            customer = Customer.query.get(request.customer_id)  # Fetch customer from the database
+        
+        customer = Customer.query.get(request.customer_id)  # Fetch customer from the database
 
         # Fetch professional details
         professional_name = (
@@ -451,6 +451,7 @@ def professionals_home():
         mappings = create_id_mappings()
         enriched_today_requests = enrich_service_requests(today_service_requests,None, mappings,service_professional)
         enriched_past_requests = enrich_service_requests(closed_service_requests, None, mappings,service_professional)
+        print(today_service_requests)
 
         return render_template(
             'professionals/home.html',
@@ -482,6 +483,7 @@ def service_request_action(service_request_id, action):
         if service_request.service_status == ServiceRequestStatus.REQUESTED.display_name:  # Only reject if the request is in 'Requested' state
             service_request.service_status = ServiceRequestStatus.REQUESTED.display_name
             service_request.rejected_by_professional_id = session['userId']
+            service_request.professional_id = session['userId']
         else:
             flash("Request cannot be rejected. It is not in the 'Requested' state.", "error")
             return redirect(url_for('professionals_home'))
@@ -671,9 +673,8 @@ def logout():
 def register_customer():
     return render_template('register_customer.html')
 
-app.route('/register_customer', methods=[ 'POST'])
+@app.route('/register_customer', methods=['POST'])
 def register_customer_post():
-        print('cust -details')
         name = request.form.get('username')
         email = request.form.get('email')
         phone = request.form.get('phone')
@@ -688,6 +689,7 @@ def register_customer_post():
         try:
             new_customer = Customer(
                 name=name,
+                username=name,
                 email=email,
                 phone=phone,
                 address=address,
