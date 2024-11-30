@@ -586,11 +586,38 @@ def update_status():
 @app.route('/admin/summary')
 @auth_required
 def admin_summary():
-    # Example data fetch from the database (replace with real queries)
-    customer_ratings = [35, 50, 10, 5]  # Example values
-    service_requests = [120, 80, 20]    # Example values
+    # Fetch data from the database (replace with real queries)
+    professionals = ServiceProfessional.query.all()
+    services = Service.query.all()
+    service_requests = ServiceRequest.query.all()
+    enriched_service_requests = enrich_service_requests(service_requests, None, create_id_mappings())
+    services_new = enrich_services(services)
+    
+    # Prepare the data for the bar chart (Service Requests Overview)
+    service_request_counts = {
+    'pending': len([req for req in enriched_service_requests if req['status'] == 'requested']),
+    'in_progress': len([req for req in enriched_service_requests if req['status'] == 'assigned']),
+    'completed': len([req for req in enriched_service_requests if req['status'] == 'closed'])
+}
 
-    return render_template('admin/summary.html', customer_ratings=customer_ratings, service_requests=service_requests)
+    # Prepare data for the circle chart (Rating Distribution)
+    ratings = Feedback.query.all()
+    rating_distribution = {
+        'excellent': sum(1 for feedback in ratings if feedback.rating == 5),
+        'good': sum(1 for feedback in ratings if feedback.rating == 4),
+        'average': sum(1 for feedback in ratings if feedback.rating == 3),
+        'poor': sum(1 for feedback in ratings if feedback.rating <= 2)
+    }
+
+    return render_template(
+        'admin/summary.html',
+        professionals=professionals,
+        services=services_new,
+        service_requests=enriched_service_requests,
+        service_types=ServiceType.list_all(),
+        service_request_counts=service_request_counts,
+        rating_distribution=rating_distribution
+    )
 
 
 @app.route('/admin/home')

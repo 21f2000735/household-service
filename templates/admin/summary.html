@@ -1,0 +1,103 @@
+{% extends 'layout.html' %}
+{% include 'nav_bar_admin.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Center content with 10% free space on both sides -->
+        <div class="col-md-8 col-md-offset-3" style="margin-left: 15%;">
+            <h2 class="text-muted">Home Services at Your Doorstep</h2>
+
+            <!-- Service Summary Section -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Service Summary</strong>
+                </div>
+                <div class="panel-body">
+                    <!-- Bar Chart for Service Requests Overview -->
+                    <div class="chart-container">
+                        <canvas id="barChart"></canvas>
+                    </div>
+
+                    <!-- Circle Chart for Rating Distribution -->
+                    <div class="chart-container mt-4">
+                        <canvas id="circleChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Services Section -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Available Services</strong>
+                </div>
+                <div class="panel-body">
+                    {% include 'service_cards.html' %}
+                </div>
+            </div>
+
+            <!-- Past Service Requests Section -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Your Past Service Requests</strong>
+                </div>
+                <div class="panel-body">
+                    {% include 'cust_past_service_requests.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Bar chart for service requests overview
+    var ctxBar = document.getElementById('barChart').getContext('2d');
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: ['Pending', 'In Progress', 'Completed'],
+            datasets: [{
+                label: 'Number of Requests',
+                data: [{{ service_request_counts['pending'] }}, {{ service_request_counts['in_progress'] }}, {{ service_request_counts['completed'] }}],
+                backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 162, 235, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true
+                },
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Doughnut chart for rating distribution
+    var ctxCircle = document.getElementById('circleChart').getContext('2d');
+    var circleChart = new Chart(ctxCircle, {
+        type: 'doughnut',
+        data: {
+            labels: ['Excellent', 'Good', 'Average', 'Poor'],
+            datasets: [{
+                label: 'Rating Distribution',
+                data: [{{ rating_distribution['excellent'] }}, {{ rating_distribution['good'] }}, {{ rating_distribution['average'] }}, {{ rating_distribution['poor'] }}],
+                backgroundColor: ['#4CAF50', '#FFEB3B', '#FFC107', '#F44336']
+            }]
+        },
+        options: {
+            responsive: true,
+            legend: {
+                position: 'bottom'
+            }
+        }
+    });
+</script>
+{% endblock %}
