@@ -667,11 +667,12 @@ def logout():
     flash("You have been logged out successfully.", "success")
     return redirect(url_for('home'))
 
-
-app.route('/register_customer', methods=['GET', 'POST'])
+@app.route('/register_customer', methods=['GET'])
 def register_customer():
-    if request.method == 'POST':
-        # Collect form data
+    return render_template('register_customer.html')
+
+app.route('/register_customer', methods=[ 'POST'])
+def register_customer_post():
         print('cust -details')
         name = request.form.get('username')
         email = request.form.get('email')
@@ -700,7 +701,7 @@ def register_customer():
         except Exception as e:
             db.session.rollback()
             flash(f'Error: {str(e)}', 'danger')
-    return render_template('register_customer.html', service_types=ServiceType)
+        return render_template('register_customer.html', service_types=ServiceType)
 
 
 @app.route('/register_professional', methods=['GET'])
