@@ -100,7 +100,7 @@ def create_or_get_service_request(customer, service, professional):
                 service_type_id=service.service_type_id,
                 customer_id=customer.id,
                 professional_id=professional.id,
-                service_status=ServiceRequestStatus.CLOSED.display_name,
+                service_status=ServiceRequestStatus.ASSIGNED.display_name,
                 service_name=service.name,
                 remarks="Fix leaking pipe"
             )

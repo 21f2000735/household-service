@@ -371,8 +371,7 @@ def new_service_request():
 @app.route('/customers/services')
 @auth_required
 def customer_services():
-    # Replace with your logic to fetch service data and render the template
-    # Fetch all service requests for this customer
+ # Fetch all service requests for this customer
       # Create mappings for IDs to their objects
         mappings = create_id_mappings()
 
@@ -386,6 +385,32 @@ def customer_services():
             professional_mapping=mappings['professional_mapping']
         )
 
+@app.route('/customers/services/action', methods=['POST'])
+@auth_required
+def customer_services_action():
+       
+    request_id = request.form.get('request_id')
+    service_date_str = request.form.get('service_date')
+    rating = request.form.get('rating')
+    remarks = request.form.get('remarks')
+
+    # Convert service_date to datetime format
+    service_date = datetime.strptime(service_date_str, '%Y-%m-%d') if service_date_str else None
+
+    # Find the service request by ID (you can adjust this based on your database structure)
+    service_request = ServiceRequest.query.get(request_id)
+    if not service_request:
+        return jsonify({'error': 'Service request not found'}), 404
+
+    # Update service request details
+    print(service_date)
+    service_request.date_of_request = service_date
+    service_request.rating = rating
+    service_request.remarks = remarks
+
+    # Save changes to the database
+    db.session.commit()
+    return redirect(url_for('customers_home'))
 
 ################################ Customer API End##############
 
