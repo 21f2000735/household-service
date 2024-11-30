@@ -24,7 +24,8 @@
                 <td>{{ request.professional_name if request.professional_name else 'N/A' }}</td>
                 <td>{{ request.professional_phone if request.professional_phone else 'N/A' }}</td>
                 <td>{{ request.status }}</td>
-                <td>{{ request.requested_date.strftime('%Y-%m-%d') if request.requested_date else 'N/A' }}</td> <!-- Requested Date -->
+                <td>
+                    {{ request.date_of_request.strftime('%Y-%m-%d') if request.date_of_request else 'N/A' }}</td> <!-- Requested Date -->
                 <td>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#actionModal" 
                             data-request-id="{{ request.id }}" 

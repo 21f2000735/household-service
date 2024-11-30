@@ -336,21 +336,28 @@ def new_service_request():
         # Fetch customer info from the session
         #validate_csrf_token()
         service_id = request.form.get('service_id')
+        service_name = request.form.get('service_name')
+        service_type_id = request.form.get('service_type_id')
+        request_date = request.form.get('request_date')
         remark = request.form.get('remark', '')  # Optional field
         payment_option = request.form.get('payment_option')
         customer = Customer.query.filter_by(id=session['userId']).first()
         # Fetch all service requests (could be filtered if needed)
         service_requests = ServiceRequest.query.all()
         print(service_id)
+        print(service_name)
+        print(request_date)
         if service_id: 
             service = Service.query.get_or_404(service_id)
             service_request = ServiceRequest(
                 service_id=service.id,
+                service_name=service_name,
                 customer_id=customer.id,
-                service_status="requested",
-                remarks=remark
+                service_status=ServiceRequestStatus.REQUESTED.display_name,
+                remarks=remark,
+                service_type_id=service_type_id,
+                date_of_request=  datetime.strptime(request_date, '%Y-%m-%d')
             )
-            print(service_request)
             db.session.add(service_request)
             db.session.commit()
 

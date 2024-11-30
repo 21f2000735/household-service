@@ -34,7 +34,8 @@
                                 data-bs-toggle="modal" 
                                 data-bs-target="#newServiceModal"
                                 data-service-id="{{ service.id }}"
-                                data-service-name="{{ service.name }}">
+                                data-service-name="{{ service.name }}"
+                                data-service-type-id="{{ service.type_id }}">
                             Book
                         </button>
                     </td>
@@ -54,10 +55,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Service: <span id="modal-service-name"></span></p>
+                    <p>Service: <span id="modal-service-name-display"></span></p>
 
                     <!-- Hidden input for service ID -->
                     <input type="hidden" name="service_id" id="modal-service-id">
+                    <input type="hidden" name="service_name" id="modal-hidden-service-name">
+                    <input type="hidden" name="service_type_id" id="modal-service-type-id">
 
                     <!-- Request Date Input -->
                     <div class="mb-3">
@@ -73,8 +76,8 @@
 
                     <!-- COD Option -->
                     <div class="mb-3">
-                        <label for="cod_option" class="form-label">Payment Option:</label>
-                        <select class="form-select" id="cod_option" name="payment_option" required>
+                        <label for="payment_option" class="form-label">Payment Option:</label>
+                        <select class="form-select" id="payment_option" name="payment_option" required>
                             <option value="COD">Cash on Delivery</option>
                             <option value="Online">Online Payment</option>
                         </select>
@@ -98,24 +101,23 @@
 
         tableRows.forEach(function (row) {
             const rowText = row.textContent.toLowerCase(); // Get the entire text content of the row
-            if (rowText.includes(searchValue)) {
-                row.style.display = ''; // Show row if it matches
-            } else {
-                row.style.display = 'none'; // Hide row if it doesn't match
-            }
+            row.style.display = rowText.includes(searchValue) ? '' : 'none';
         });
     });
 
-    // Modal logic for setting today's date
+    // Modal logic for setting service details
     const newServiceModal = document.getElementById('newServiceModal');
     newServiceModal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget; // Button that triggered the modal
         const serviceId = button.getAttribute('data-service-id');
         const serviceName = button.getAttribute('data-service-name');
+        const serviceTypeId = button.getAttribute('data-service-type-id');
 
         // Update modal content
-        document.getElementById('modal-service-name').textContent = serviceName;
+        document.getElementById('modal-service-name-display').textContent = serviceName;
+        document.getElementById('modal-hidden-service-name').value = serviceName;
         document.getElementById('modal-service-id').value = serviceId;
+        document.getElementById('modal-service-type-id').value = serviceTypeId;
 
         // Set the Preferred Service Date to today's date
         const today = new Date();

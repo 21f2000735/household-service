@@ -101,7 +101,7 @@ def create_or_get_service_request(customer, service, professional):
                 customer_id=customer.id,
                 professional_id=professional.id,
                 service_status=ServiceRequestStatus.CLOSED.display_name,
-                service_name='Test Service:',
+                service_name=service.name,
                 remarks="Fix leaking pipe"
             )
             db.session.add(service_request)
