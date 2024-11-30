@@ -67,7 +67,8 @@ def create_or_get_service_professional():
                 phone="9876543210",
                 experience=10,
                 description="Expert in plumbing and repairs",
-                approved=True
+                approved=True,
+                service_type_id= ServiceType.PLUMBING.id
             )
             db.session.add(professional)
             db.session.commit()  # Commit after adding the professional

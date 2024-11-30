@@ -16,6 +16,25 @@ from models import *
 from config import *
 todaydate = datetime.utcnow()
 
+from flask import session, flash, redirect, url_for
+from functools import wraps
+
+def auth_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        # Check if 'admin_id' exists in session
+        if 'userId' in session:
+            # If authenticated, proceed to the original function
+            return func(*args, **kwargs)
+        else:
+            # If not authenticated, redirect to login page
+            flash("Please log in first.", "warning")
+            return redirect(url_for('login_post'))
+    return decorated_function
+
+
+
+
 @app.route('/')
 def index():
     return redirect(url_for('login')) 
@@ -59,7 +78,7 @@ def login_post():
         return redirect(url_for('professionals_home'))
 
     # If no user found or password is incorrect
-    flash('Invalid username or password')
+    flash('Login with username or password')
     return redirect(url_for('login'))
 
 
@@ -82,6 +101,7 @@ def create_id_mappings():
 
 
 @app.route('/admin/add_edit_service', methods=['POST'])
+@auth_required
 def add_edit_service():
     # Get data from the form
     service_id = request.form['service_id']  # Get service_id, might be empty for a new service
@@ -90,10 +110,6 @@ def add_edit_service():
     service_base_price = request.form['base_price']
     service_time_required = request.form['time_required']
     service_type_id = request.form['service_type_id'] #holds id
-    print('ser')
-    print(service_id)
-    print(service_name)
-    print(service_description)
 
     try:
         if service_id: 
@@ -121,6 +137,7 @@ def add_edit_service():
     
 
 @app.route('/admin/delete_service/<int:service_id>', methods=['POST'])
+@auth_required
 def delete_service(service_id):
     try:
         print(service_id)
@@ -246,6 +263,7 @@ def enrich_service_requests(service_requests, customer, mappings, professional=N
 ################################ Customer API Start ##############
 
 @app.route('/customers/home')
+@auth_required
 def customers_home():
     try:
         # Create mappings for IDs to their objects
@@ -277,6 +295,7 @@ def customers_home():
 
 
 @app.route('/customers/best_package/<int:service_type_id>', methods=['POST'])
+@auth_required
 def view_package(service_type_id):
     try:
         # Get the current logged-in customer
@@ -311,6 +330,7 @@ def view_package(service_type_id):
 
 
 @app.route('/customers/new_service_request/', methods=['POST'])
+@auth_required
 def new_service_request():
     try:
         # Fetch customer info from the session
@@ -342,6 +362,7 @@ def new_service_request():
 
 
 @app.route('/customers/services')
+@auth_required
 def customer_services():
     # Replace with your logic to fetch service data and render the template
     # Fetch all service requests for this customer
@@ -364,6 +385,7 @@ def customer_services():
 ################################ Professional  API Start ##############
 
 @app.route('/professionals/home')
+@auth_required
 def professionals_home():
     try:
         # Get the current logged-in professional
@@ -409,6 +431,7 @@ def professionals_home():
 
 
 @app.route('/professionals/service_request/<int:service_request_id>/<action>', methods=['POST'])
+@auth_required
 def service_request_action(service_request_id, action):
     # Fetch the service request from the database
     service_request = ServiceRequest.query.get_or_404(service_request_id)
@@ -454,6 +477,7 @@ def service_request_action(service_request_id, action):
 ################### Professional End point End ############# 
 ################### Amdin Start###############
 @app.route('/professionals/action', methods=['POST'])
+@auth_required
 def handle_professional_action():
     from flask import flash
 
@@ -496,6 +520,7 @@ def handle_professional_action():
 
 ###########
 @app.route('/service_requests/update_status', methods=['POST'])
+@auth_required
 def update_status():
     request_id = request.form.get('request_id')
     new_status = request.form.get('status')
@@ -527,6 +552,7 @@ def update_status():
 
 
 @app.route('/admin/summary')
+@auth_required
 def admin_summary():
     # Example data fetch from the database (replace with real queries)
     customer_ratings = [35, 50, 10, 5]  # Example values
@@ -536,6 +562,7 @@ def admin_summary():
 
 
 @app.route('/admin/home')
+@auth_required
 def admin_home():
     # Fetch data from the database
     professionals = ServiceProfessional.query.all()
@@ -554,6 +581,7 @@ def admin_home():
 
 
 @app.route('/admin/services')
+@auth_required
 def admin_services():
     # Replace with your logic to fetch service data and render the template
     # Fetch all service requests for this customer
@@ -571,3 +599,88 @@ def admin_services():
         )
 
 ################ Admin End ##########
+@app.route('/logout')
+def logout():
+    # Remove all session data
+    session.pop('userId', None)
+    session.pop('role', None)
+
+    flash("You have been logged out successfully.", "success")
+    return redirect(url_for('home'))
+
+
+app.route('/register_customer', methods=['GET', 'POST'])
+def register_customer():
+    if request.method == 'POST':
+        # Collect form data
+        print('cust -details')
+        name = request.form.get('username')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+        pincode = request.form.get('pincode')
+        password = request.form.get('password')
+
+        # Hash the password for security
+        password_hash = generate_password_hash(password)
+
+        # Save the customer to the database
+        try:
+            new_customer = Customer(
+                name=name,
+                email=email,
+                phone=phone,
+                address=address,
+                pincode=pincode,
+                password_hash=password_hash
+            )
+            db.session.add(new_customer)
+            db.session.commit()
+            flash('Customer registration successful!', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+    return render_template('register_customer.html', service_types=ServiceType)
+
+
+@app.route('/register_professional', methods=['GET'])
+def register_professional():
+    return render_template('register_professional.html', service_types=ServiceType)
+
+@app.route('/register_professional', methods=['POST'])
+def register_professional_post():
+    username = request.form.get('username')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    experience = request.form.get('experience')
+    description = request.form.get('description')
+    service_type = request.form.get('serviceType')
+    password = request.form.get('password')
+    
+        # Hash the password for security
+    password_hash = generate_password_hash(password)
+
+        # Save the professional to the database
+    try:
+            new_professional = ServiceProfessional(
+                username=username,
+                name=username,
+                email=email,
+                phone=phone,
+                experience=int(experience) if experience else None,
+                description=description,
+                service_type_id=service_type,  # ServiceType Enum field
+                password_hash=password_hash,
+                approved=True
+            )
+            db.session.add(new_professional)
+            db.session.commit()
+            flash('Professional registration successful!', 'success')
+            return redirect(url_for('login'))
+    except Exception as e:
+            db.session.rollback()
+            flash(f'Error: {str(e)}', 'danger')
+
+    # Pass service types to the template
+    return render_template('register_professional.html', service_types=ServiceType)

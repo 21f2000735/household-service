@@ -47,14 +47,15 @@ class Service(BaseModel):
 
 class ServiceProfessional(BaseModel):
     __tablename__ = 'service_professional'
-    username = db.Column(db.String(150), unique=True, nullable=False)
+    username = db.Column(db.String(150), unique=False, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
-    name = db.Column(db.String(150), nullable=True)  # Made nullable
+    name = db.Column(db.String(150), nullable=False)  # Made nullable
     email = db.Column(db.String(150), unique=True, nullable=True)  # Made nullable
     phone = db.Column(db.String(20), unique=True, nullable=True)  # Made nullable
     experience = db.Column(db.Integer, nullable=True)  # Made nullable
     description = db.Column(db.Text, nullable=True)  # Made nullable
     approved = db.Column(db.Boolean, default=False, nullable=True)  # Made nullable
+    service_type_id = db.Column(db.Integer, nullable=False)
 
 class ServiceRequest(BaseModel):
     __tablename__ = 'service_request'

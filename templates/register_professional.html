@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Form Box -->
+            <div class="form-box p-5 border rounded shadow-lg" 
+                 style="background: linear-gradient(135deg, #f7f7f7, #eaeaea);">
+                <h3 class="text-center mb-4 text-primary fw-bold">Professional Registration</h3>
+                <p class="text-center text-muted mb-4">Join us as a service provider and grow your business</p>
+
+                <!-- Registration Form -->
+                <form action="" method="post" class="needs-validation" novalidate>
+                    
+                    <!-- Username -->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+                        <label for="username">Username</label>
+                        <div class="invalid-feedback">Please enter a username.</div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com">
+                        <label for="email">Email</label>
+                        <div class="invalid-feedback">Please enter a valid email.</div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                        <label for="password">Password</label>
+                        <div class="invalid-feedback">Please enter a password.</div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-floating mb-3">
+                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number">
+                        <label for="phone">Phone</label>
+                    </div>
+
+                    <!-- Experience -->
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control" id="experience" name="experience" placeholder="Years of experience">
+                        <label for="experience">Experience (Years)</label>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-floating mb-3">
+                        <textarea class="form-control" id="description" name="description" placeholder="Tell us about your services"></textarea>
+                        <label for="description">Description</label>
+                    </div>
+
+                    <!-- Service Type -->
+                    <div class="form-floating mb-4">
+                        <select class="form-select" id="serviceType" name="serviceType" required>
+                            <option value="" disabled selected>Select your service type</option>
+                            {% for service in service_types %}
+                            <option value="{{ service.id }}" selected>{{ service.value[1] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="serviceType">Service Type</label>
+                        <div class="invalid-feedback">Please select a service type.</div>
+                    </div>
+
+                    <!-- Approval -->
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="approved" name="approved">
+                        <label class="form-check-label" for="approved">I agree to the terms and conditions</label>
+                    </div>
+
+                    <!-- Register Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
