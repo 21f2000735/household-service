@@ -344,9 +344,9 @@ def new_service_request():
         customer = Customer.query.filter_by(id=session['userId']).first()
         # Fetch all service requests (could be filtered if needed)
         service_requests = ServiceRequest.query.all()
+        print('new_service_request')
         print(service_id)
         print(service_name)
-        print(request_date)
         if service_id: 
             service = Service.query.get_or_404(service_id)
             service_request = ServiceRequest(
@@ -355,7 +355,7 @@ def new_service_request():
                 customer_id=customer.id,
                 service_status=ServiceRequestStatus.REQUESTED.display_name,
                 remarks=remark,
-                service_type_id=service_type_id,
+                service_type_id=service.service_type_id,
                 date_of_request=  datetime.strptime(request_date, '%Y-%m-%d')
             )
             db.session.add(service_request)
