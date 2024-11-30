@@ -1,0 +1,38 @@
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4">Our Services</h2>
+
+    <div class="row">
+        {% for service_type in service_types %}
+        <div class="col-12 mb-4">
+            <div class="card mb-4 shadow service-card">
+                <div class="row no-gutters">
+                    <!-- Left Section: Image -->
+                    <div class="col-12 col-md-5">
+                        <div class="card-img-left" 
+                            style="background-image: url('{{ url_for('static', filename=service_type.image_url) }}'); 
+                                   background-size: cover; background-position: center; height: 300px;">
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Details -->
+                    <div class="col-12 col-md-7">
+                        <div class="card-body text-dark">
+                            <h4 class="card-title" style="background-color: rgba(0, 0, 0, 0.3); color: white; padding: 10px; border-radius: 5px;">
+                                {{ service_type.display_name }}
+                            </h4>
+                            <p><strong>Description:</strong> {{ service_type.description }}</p> <!-- Added the description here -->
+                            <p><strong>Base Price:</strong> INR {{ service_type.base_price }}</p>
+                            <p><strong>Service Type:</strong> {{ service_type.display_name }}</p>
+                        </div>
+
+                        <!-- Button to View Packages -->
+                       <br>
+                                <strong> Starting from Price: INR {{ service_type.base_price }}</strong>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

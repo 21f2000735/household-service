@@ -684,3 +684,20 @@ def register_professional_post():
 
     # Pass service types to the template
     return render_template('register_professional.html', service_types=ServiceType)
+
+
+
+##
+@app.route('/professional/services')
+@auth_required
+def professional_services():
+    # Replace with your logic to fetch service data and render the template
+    # Fetch all service requests for this customer
+      # Create mappings for IDs to their objects
+        mappings = create_id_mappings()
+
+      
+        return render_template(
+            'prof_services.html',
+            service_types=ServiceType.list_all()
+        )
